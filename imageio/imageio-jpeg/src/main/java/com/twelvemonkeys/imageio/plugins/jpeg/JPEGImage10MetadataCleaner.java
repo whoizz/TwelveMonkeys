@@ -1,20 +1,22 @@
 package com.twelvemonkeys.imageio.plugins.jpeg;
 
-import com.twelvemonkeys.imageio.metadata.jpeg.JPEG;
-import com.twelvemonkeys.imageio.metadata.jpeg.JPEGSegment;
-import com.twelvemonkeys.xml.XMLSerializer;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import javax.imageio.metadata.IIOInvalidTreeException;
-import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.metadata.IIOMetadataNode;
 import java.awt.color.ICC_Profile;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
+
+import javax.imageio.metadata.IIOInvalidTreeException;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.metadata.IIOMetadataNode;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import com.twelvemonkeys.imageio.metadata.jpeg.JPEG;
+import com.twelvemonkeys.imageio.metadata.jpeg.JPEGSegment;
+import com.twelvemonkeys.xml.XMLSerializer;
 
 /**
  * JPEGImage10MetadataCleaner
@@ -197,7 +199,9 @@ final class JPEGImage10MetadataCleaner {
             IIOMetadataNode unknown = new IIOMetadataNode("unknown");
             unknown.setAttribute("MarkerTag", Integer.toString(segment.marker() & 0xff));
 
-            try (DataInputStream stream = new DataInputStream(segment.data())) {
+            DataInputStream stream = null;
+            try {
+            	stream = new DataInputStream(segment.data());
                 String identifier = segment.identifier();
                 int off = identifier != null ? identifier.length() + 1 : 0;
 
@@ -210,6 +214,11 @@ final class JPEGImage10MetadataCleaner {
                 stream.readFully(data, off, segment.length());
 
                 unknown.setUserObject(data);
+            }
+            finally {
+            	if (stream != null) {
+            		stream.close();
+            	}
             }
 
             if (next == null) {

@@ -1,17 +1,17 @@
 package com.twelvemonkeys.imageio.plugins.svg;
 
-import com.twelvemonkeys.imageio.stream.ByteArrayImageInputStream;
-import com.twelvemonkeys.imageio.stream.URLImageInputStreamSpi;
-import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import javax.imageio.ImageIO;
 import javax.imageio.spi.IIORegistry;
 import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.ImageInputStream;
-import java.nio.charset.StandardCharsets;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+
+import com.twelvemonkeys.imageio.stream.ByteArrayImageInputStream;
+import com.twelvemonkeys.imageio.stream.URLImageInputStreamSpi;
 
 /**
  * SVGImageReaderSpiTest.
@@ -52,8 +52,15 @@ public class SVGImageReaderSpiTest {
     @Test
     public void canDecodeInput() throws Exception {
         for (String validInput : VALID_INPUTS) {
-            try (ImageInputStream input = ImageIO.createImageInputStream(getClass().getResource(validInput))) {
+        	ImageInputStream input = null;
+            try {
+            	input = ImageIO.createImageInputStream(getClass().getResource(validInput));
                 assertTrue("Can't read valid input: " + validInput, provider.canDecodeInput(input));
+            }
+            finally {
+            	if (input != null) {
+            		input.close();
+            	}
             }
         }
     }
@@ -62,8 +69,15 @@ public class SVGImageReaderSpiTest {
     @Test(timeout = 5000)
     public void canDecodeInputInvalid() throws Exception {
         for (String invalidInput : INVALID_INPUTS) {
-            try (ImageInputStream input = new ByteArrayImageInputStream(invalidInput.getBytes(StandardCharsets.UTF_8))) {
+        	ImageInputStream input = null;
+            try {
+            	input = new ByteArrayImageInputStream(invalidInput.getBytes("UTF-8"));
                 assertFalse("Claims to read invalid input:" + invalidInput, provider.canDecodeInput(input));
+            }
+            finally {
+                if (input != null) {
+                	input.close();
+                }
             }
         }
     }

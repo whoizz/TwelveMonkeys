@@ -28,20 +28,30 @@
 
 package com.twelvemonkeys.imageio;
 
-import com.twelvemonkeys.image.BufferedImageIcon;
-import com.twelvemonkeys.image.ImageUtil;
-import com.twelvemonkeys.imageio.util.IIOUtil;
-
-import javax.imageio.*;
-import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.spi.ImageReaderSpi;
-import javax.imageio.stream.ImageInputStream;
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsEnvironment;
+import java.awt.Image;
+import java.awt.Paint;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.TexturePaint;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
 import java.io.File;
@@ -49,6 +59,35 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Iterator;
+
+import javax.imageio.IIOException;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.spi.ImageReaderSpi;
+import javax.imageio.stream.ImageInputStream;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ButtonGroup;
+import javax.swing.Icon;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JColorChooser;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
+
+import com.twelvemonkeys.image.BufferedImageIcon;
+import com.twelvemonkeys.image.ImageUtil;
+import com.twelvemonkeys.imageio.util.IIOUtil;
 
 /**
  * Abstract base class for image readers.
@@ -480,7 +519,9 @@ public abstract class ImageReaderBase extends ImageReader {
 
                             return true;
                         }
-                        catch (UnsupportedFlavorException | IOException ignore) {
+                        catch (UnsupportedFlavorException ignore) {
+                        }
+                        catch (IOException ignore) {
                         }
                     }
 

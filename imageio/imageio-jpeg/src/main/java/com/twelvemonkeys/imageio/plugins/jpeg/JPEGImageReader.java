@@ -28,6 +28,46 @@
 
 package com.twelvemonkeys.imageio.plugins.jpeg;
 
+import java.awt.Rectangle;
+import java.awt.color.ColorSpace;
+import java.awt.color.ICC_ColorSpace;
+import java.awt.color.ICC_Profile;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.Raster;
+import java.awt.image.RasterOp;
+import java.awt.image.RenderedImage;
+import java.awt.image.WritableRaster;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.SequenceInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.imageio.IIOException;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.event.IIOReadUpdateListener;
+import javax.imageio.event.IIOReadWarningListener;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.metadata.IIOMetadataFormatImpl;
+import javax.imageio.metadata.IIOMetadataNode;
+import javax.imageio.spi.ImageReaderSpi;
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.MemoryCacheImageInputStream;
+
 import com.twelvemonkeys.imageio.ImageReaderBase;
 import com.twelvemonkeys.imageio.color.ColorSpaces;
 import com.twelvemonkeys.imageio.color.YCbCrConverter;
@@ -43,24 +83,6 @@ import com.twelvemonkeys.imageio.util.ImageTypeSpecifiers;
 import com.twelvemonkeys.imageio.util.ProgressListenerBase;
 import com.twelvemonkeys.lang.Validate;
 import com.twelvemonkeys.xml.XMLSerializer;
-
-import javax.imageio.*;
-import javax.imageio.event.IIOReadUpdateListener;
-import javax.imageio.event.IIOReadWarningListener;
-import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.metadata.IIOMetadataFormatImpl;
-import javax.imageio.metadata.IIOMetadataNode;
-import javax.imageio.spi.ImageReaderSpi;
-import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.MemoryCacheImageInputStream;
-import java.awt.*;
-import java.awt.color.ColorSpace;
-import java.awt.color.ICC_ColorSpace;
-import java.awt.color.ICC_Profile;
-import java.awt.image.*;
-import java.io.*;
-import java.util.*;
-import java.util.List;
 
 /**
  * A JPEG {@code ImageReader} implementation based on the JRE {@code JPEGImageReader},
@@ -112,7 +134,7 @@ public class JPEGImageReader extends ImageReaderBase {
     private static final Map<Integer, List<String>> SEGMENT_IDENTIFIERS = createSegmentIds();
 
     private static Map<Integer, List<String>> createSegmentIds() {
-        Map<Integer, List<String>> map = new LinkedHashMap<>();
+        Map<Integer, List<String>> map = new LinkedHashMap<Integer, List<String>>();
 
         // Need all APP markers to be able to re-generate proper metadata later
         for (int appMarker = JPEG.APP0; appMarker <= JPEG.APP15; appMarker++) {
@@ -224,7 +246,7 @@ public class JPEGImageReader extends ImageReaderBase {
         JPEGColorSpace csType = getSourceCSType(getJFIF(), getAdobeDCT(), getSOF());
 
         if (types == null || !types.hasNext() || csType == JPEGColorSpace.CMYK || csType == JPEGColorSpace.YCCK) {
-            ArrayList<ImageTypeSpecifier> typeList = new ArrayList<>();
+            ArrayList<ImageTypeSpecifier> typeList = new ArrayList<ImageTypeSpecifier>();
             // Add the standard types, we can always convert to these
             typeList.add(ImageTypeSpecifiers.createFromBufferedImageType(BufferedImage.TYPE_3BYTE_BGR));
             typeList.add(ImageTypeSpecifiers.createFromBufferedImageType(BufferedImage.TYPE_INT_RGB));
@@ -677,7 +699,12 @@ public class JPEGImageReader extends ImageReaderBase {
 
             segments = JPEGSegmentUtil.readSegments(imageInput, SEGMENT_IDENTIFIERS);
         }
-        catch (IIOException | IllegalArgumentException ignore) {
+        catch (IIOException ignore) {
+            if (DEBUG) {
+                ignore.printStackTrace();
+            }
+        }
+        catch (IllegalArgumentException ignore) {
             if (DEBUG) {
                 ignore.printStackTrace();
             }
@@ -701,7 +728,7 @@ public class JPEGImageReader extends ImageReaderBase {
             if ((marker == ALL_APP_MARKERS && segment.marker() >= JPEG.APP0 && segment.marker() <= JPEG.APP15 || segment.marker() == marker)
                     && (identifier == null || identifier.equals(segment.identifier()))) {
                 if (appSegments == Collections.EMPTY_LIST) {
-                    appSegments = new ArrayList<>(segments.size());
+                    appSegments = new ArrayList<JPEGSegment>(segments.size());
                 }
 
                 appSegments.add(segment);
@@ -959,7 +986,7 @@ public class JPEGImageReader extends ImageReaderBase {
         checkBounds(imageIndex);
 
         if (thumbnails == null) {
-            thumbnails = new ArrayList<>();
+            thumbnails = new ArrayList<ThumbnailReader>();
             ThumbnailReadProgressListener thumbnailProgressDelegator = new ThumbnailProgressDelegate();
 
             // Read JFIF thumbnails if present
@@ -1278,7 +1305,10 @@ public class JPEGImageReader extends ImageReaderBase {
                             roi = new Rectangle(Integer.parseInt(region[0]), Integer.parseInt(region[2]));
                         }
                     }
-                    catch (IndexOutOfBoundsException | NumberFormatException e) {
+                    catch (IndexOutOfBoundsException e) {
+                        System.err.println("Bad source region ([x,y,]w, h): '" + args[argIdx] + "'");
+                    }
+                    catch (NumberFormatException e) {
                         System.err.println("Bad source region ([x,y,]w, h): '" + args[argIdx] + "'");
                     }
                 }

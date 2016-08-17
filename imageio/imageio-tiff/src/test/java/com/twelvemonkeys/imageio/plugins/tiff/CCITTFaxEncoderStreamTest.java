@@ -28,9 +28,19 @@
 
 package com.twelvemonkeys.imageio.plugins.tiff;
 
-import com.twelvemonkeys.imageio.plugins.tiff.CCITTFaxEncoderStream.Code;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URL;
+import java.util.Arrays;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -38,13 +48,11 @@ import javax.imageio.ImageReader;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.io.*;
-import java.net.URL;
-import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.twelvemonkeys.imageio.plugins.tiff.CCITTFaxEncoderStream.Code;
 
 /**
  * CCITTFaxEncoderStreamTest
@@ -121,7 +129,9 @@ public class CCITTFaxEncoderStreamTest {
 
     @Test
     public void testReencodeImages() throws IOException {
-        try (ImageInputStream iis = ImageIO.createImageInputStream(getClassLoaderResource("/tiff/fivepages-scan-causingerrors.tif").openStream())) {
+    	ImageInputStream iis = null;
+        try {
+        	iis = ImageIO.createImageInputStream(getClassLoaderResource("/tiff/fivepages-scan-causingerrors.tif").openStream());
             ImageReader reader = ImageIO.getImageReaders(iis).next();
             reader.setInput(iis, true);
 
@@ -129,12 +139,19 @@ public class CCITTFaxEncoderStreamTest {
             ImageWriter writer = ImageIO.getImageWritersByFormatName("TIFF").next();
             BufferedImage originalImage;
 
-            try (ImageOutputStream output = ImageIO.createImageOutputStream(outputBuffer)) {
+            ImageOutputStream output = null;
+            try {
+            	output = ImageIO.createImageOutputStream(outputBuffer);
                 writer.setOutput(output);
                 originalImage = reader.read(0);
 
                 IIOImage outputImage = new IIOImage(originalImage, null, reader.getImageMetadata(0));
                 writer.write(outputImage);
+            }
+            finally {
+            	if (output != null) {
+            		output.close();
+            	}
             }
 
             byte[] originalData = ((DataBufferByte) originalImage.getData().getDataBuffer()).getData();
@@ -143,6 +160,11 @@ public class CCITTFaxEncoderStreamTest {
             byte[] reencodedData = ((DataBufferByte) reencodedImage.getData().getDataBuffer()).getData();
 
             assertArrayEquals(originalData, reencodedData);
+        }
+        finally {
+        	if (iis != null) {
+        		iis.close();
+        	}
         }
     }
 
@@ -182,9 +204,15 @@ public class CCITTFaxEncoderStreamTest {
         outputSteam.close();
         byte[] encodedData = imageOutput.toByteArray();
 
-        try (CCITTFaxDecoderStream inputStream =
-                     new CCITTFaxDecoderStream(new ByteArrayInputStream(encodedData), 6, type, fillOrder, options)) {
+        CCITTFaxDecoderStream inputStream = null;
+        try {
+        	inputStream = new CCITTFaxDecoderStream(new ByteArrayInputStream(encodedData), 6, type, fillOrder, options);
             new DataInputStream(inputStream).readFully(redecodedData);
+        }
+        finally {
+        	if (inputStream != null) {
+        		inputStream.close();
+        	}
         }
 
         assertArrayEquals(imageData, redecodedData);

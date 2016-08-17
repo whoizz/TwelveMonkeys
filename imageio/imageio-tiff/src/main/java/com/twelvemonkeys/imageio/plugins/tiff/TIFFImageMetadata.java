@@ -28,6 +28,27 @@
 
 package com.twelvemonkeys.imageio.plugins.tiff;
 
+import java.lang.reflect.Array;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.imageio.metadata.IIOInvalidTreeException;
+import javax.imageio.metadata.IIOMetadataFormatImpl;
+import javax.imageio.metadata.IIOMetadataNode;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import com.twelvemonkeys.imageio.AbstractMetadata;
 import com.twelvemonkeys.imageio.metadata.AbstractDirectory;
 import com.twelvemonkeys.imageio.metadata.Directory;
@@ -35,18 +56,6 @@ import com.twelvemonkeys.imageio.metadata.Entry;
 import com.twelvemonkeys.imageio.metadata.exif.Rational;
 import com.twelvemonkeys.imageio.metadata.exif.TIFF;
 import com.twelvemonkeys.lang.Validate;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import javax.imageio.metadata.IIOInvalidTreeException;
-import javax.imageio.metadata.IIOMetadataFormatImpl;
-import javax.imageio.metadata.IIOMetadataNode;
-import java.lang.reflect.Array;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 /**
  * TIFFImageMetadata.
@@ -915,7 +924,7 @@ public final class TIFFImageMetadata extends AbstractMetadata {
         super.mergeTree(formatName, root);
 
         // Set by "merging" with empty map
-        LinkedHashMap<Integer, Entry> entries = new LinkedHashMap<>();
+        LinkedHashMap<Integer, Entry> entries = new LinkedHashMap<Integer, Entry>();
         mergeEntries(formatName, root, entries);
 
         // TODO: Consistency validation?
@@ -930,7 +939,7 @@ public final class TIFFImageMetadata extends AbstractMetadata {
         super.mergeTree(formatName, root);
 
         // Clone entries (shallow clone, as entries themselves are immutable)
-        LinkedHashMap<Integer, Entry> entries = new LinkedHashMap<>(ifd.size() + 10);
+        LinkedHashMap<Integer, Entry> entries = new LinkedHashMap<Integer, Entry>(ifd.size() + 10);
 
         for (Entry entry : ifd) {
             entries.put((Integer) entry.getIdentifier(), entry);
@@ -1141,7 +1150,7 @@ public final class TIFFImageMetadata extends AbstractMetadata {
             throw new IIOInvalidTreeException("Expected \"TIFFIFD\" node", ifdNode);
         }
 
-        List<Entry> entries = new ArrayList<>();
+        List<Entry> entries = new ArrayList<Entry>();
         NodeList nodes = ifdNode.getChildNodes();
 
         for (int i = 0; i < nodes.getLength(); i++) {

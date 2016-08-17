@@ -28,20 +28,26 @@
 
 package com.twelvemonkeys.imageio.metadata.exif;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
+
+import org.junit.Test;
+
 import com.twelvemonkeys.imageio.metadata.CompoundDirectory;
 import com.twelvemonkeys.imageio.metadata.Directory;
 import com.twelvemonkeys.imageio.metadata.Entry;
 import com.twelvemonkeys.imageio.metadata.MetadataReaderAbstractTest;
 import com.twelvemonkeys.imageio.stream.SubImageInputStream;
-import org.junit.Test;
-
-import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.*;
 
 /**
  * EXIFReaderTest
@@ -279,17 +285,31 @@ public class EXIFReaderTest extends MetadataReaderAbstractTest {
 
     @Test
     public void testReadExifWithMissingEOFMarker() throws IOException {
-        try (ImageInputStream stream = ImageIO.createImageInputStream(getResource("/exif/noeof.tif"))) {
+    	ImageInputStream stream = null;
+        try {
+        	stream = ImageIO.createImageInputStream(getResource("/exif/noeof.tif"));
             CompoundDirectory directory = (CompoundDirectory) createReader().read(stream);
             assertEquals(15, directory.size());
             assertEquals(1, directory.directoryCount());
         }
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
+        }
     }
 
     public void testReadExifWithEmptyTag() throws IOException {
-        try (ImageInputStream stream = ImageIO.createImageInputStream(getResource("/exif/emptyexiftag.tif"))) {
+    	ImageInputStream stream = null;
+        try {
+        	stream = ImageIO.createImageInputStream(getResource("/exif/emptyexiftag.tif"));
             CompoundDirectory directory = (CompoundDirectory) createReader().read(stream);
             assertEquals(3, directory.directoryCount());
+        }
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
         }
     }
 }

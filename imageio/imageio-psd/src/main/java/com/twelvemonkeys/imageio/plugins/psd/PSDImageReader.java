@@ -28,10 +28,29 @@
 
 package com.twelvemonkeys.imageio.plugins.psd;
 
-import com.twelvemonkeys.image.ImageUtil;
-import com.twelvemonkeys.imageio.ImageReaderBase;
-import com.twelvemonkeys.imageio.color.ColorSpaces;
-import com.twelvemonkeys.imageio.util.ImageTypeSpecifiers;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
+import java.awt.color.ColorSpace;
+import java.awt.color.ICC_ColorSpace;
+import java.awt.color.ICC_Profile;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
+import java.awt.image.ColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferInt;
+import java.awt.image.DataBufferUShort;
+import java.awt.image.WritableRaster;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
@@ -40,16 +59,11 @@ import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.ImageInputStream;
-import java.awt.*;
-import java.awt.color.ColorSpace;
-import java.awt.color.ICC_ColorSpace;
-import java.awt.color.ICC_Profile;
-import java.awt.image.*;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.util.List;
+
+import com.twelvemonkeys.image.ImageUtil;
+import com.twelvemonkeys.imageio.ImageReaderBase;
+import com.twelvemonkeys.imageio.color.ColorSpaces;
+import com.twelvemonkeys.imageio.util.ImageTypeSpecifiers;
 
 /**
  * ImageReader for Adobe Photoshop Document (PSD) format.
@@ -264,7 +278,7 @@ public final class PSDImageReader extends ImageReaderBase {
         ImageTypeSpecifier rawType = getRawImageTypeInternal(imageIndex);
 
         ColorSpace cs = rawType.getColorModel().getColorSpace();
-        List<ImageTypeSpecifier> types = new ArrayList<>();
+        List<ImageTypeSpecifier> types = new ArrayList<ImageTypeSpecifier>();
 
         switch (header.mode) {
             case PSD.COLOR_MODE_GRAYSCALE:
@@ -554,10 +568,17 @@ public final class PSDImageReader extends ImageReaderBase {
             if (y >= pSource.y && y < pSource.y + pSource.height && y % pYSub == 0) {
                 if (pRLECompressed) {
 
-                    try (DataInputStream input = PSDUtil.createPackBitsStream(imageInput, length)) {
+                	DataInputStream input = null;
+                    try {
+                    	input = PSDUtil.createPackBitsStream(imageInput, length);
                         for (int x = 0; x < pChannelWidth; x++) {
                             pRow[x] = input.readInt();
                         }
+                    }
+                    finally {
+                    	if (input != null) {
+                    		input.close();
+                    	}
                     }
                 }
                 else {
@@ -612,10 +633,17 @@ public final class PSDImageReader extends ImageReaderBase {
             // Read entire line, if within source region and sampling
             if (y >= pSource.y && y < pSource.y + pSource.height && y % pYSub == 0) {
                 if (pRLECompressed) {
-                    try (DataInputStream input = PSDUtil.createPackBitsStream(imageInput, length)) {
+                	DataInputStream input = null;
+                    try {
+                    	input = PSDUtil.createPackBitsStream(imageInput, length);
                         for (int x = 0; x < pChannelWidth; x++) {
                             pRow[x] = input.readShort();
                         }
+                    }
+                    finally {
+                    	if (input != null) {
+                    		input.close();
+                    	}
                     }
                 }
                 else {
@@ -670,8 +698,15 @@ public final class PSDImageReader extends ImageReaderBase {
             // Read entire line, if within source region and sampling
             if (y >= pSource.y && y < pSource.y + pSource.height && y % pYSub == 0) {
                 if (pRLECompressed) {
-                    try (DataInputStream input = PSDUtil.createPackBitsStream(imageInput, length)) {
+                	DataInputStream input = null;
+                    try {
+                    	input = PSDUtil.createPackBitsStream(imageInput, length);
                         input.readFully(pRow, 0, pChannelWidth);
+                    }
+                    finally {
+                    	if (input != null) {
+                    		input.close();
+                    	}
                     }
                 }
                 else {
@@ -725,8 +760,15 @@ public final class PSDImageReader extends ImageReaderBase {
             // Read entire line, if within source region and sampling
             if (y >= pSource.y && y < pSource.y + pSource.height && y % pYSub == 0) {
                 if (pRLECompressed) {
-                    try (DataInputStream input = PSDUtil.createPackBitsStream(imageInput, length)) {
+                	DataInputStream input = null;
+                    try {
+                    	input = PSDUtil.createPackBitsStream(imageInput, length);
                         input.readFully(pRow, 0, pRow.length);
+                    }
+                    finally {
+                    	if (input != null) {
+                    		input.close();
+                    	}
                     }
                 }
                 else {
@@ -897,7 +939,7 @@ public final class PSDImageReader extends ImageReaderBase {
 
             if (pParseData && imageResourcesLength > 0) {
                 if (metadata.imageResources == null) {
-                    metadata.imageResources = new ArrayList<>();
+                    metadata.imageResources = new ArrayList<PSDImageResource>();
                     long expectedEnd = imageInput.getStreamPosition() + imageResourcesLength;
 
                     while (imageInput.getStreamPosition() < expectedEnd) {
@@ -1219,7 +1261,7 @@ public final class PSDImageReader extends ImageReaderBase {
         for (PSDImageResource resource : metadata.imageResources) {
             if (resource instanceof PSDThumbnail) {
                 if (thumbnails == null) {
-                    thumbnails = new ArrayList<>();
+                    thumbnails = new ArrayList<PSDThumbnail>();
                 }
 
                 thumbnails.add((PSDThumbnail) resource);

@@ -69,13 +69,13 @@
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/haraldk/TwelveMonkeys/issues</url>
+        <url>https://github.com/whoizz/TwelveMonkeys/issues</url>
     </issueManagement>
 
     <scm>
-        <connection>scm:git:https://github.com/haraldk/TwelveMonkeys</connection>
-        <developerConnection>scm:git:https://github.com/haraldk/TwelveMonkeys</developerConnection>
-        <url>https://github.com/haraldk/TwelveMonkeys</url>
+        <connection>scm:git:https://github.com/whoizz/TwelveMonkeys</connection>
+        <developerConnection>scm:git:https://github.com/whoizz/TwelveMonkeys</developerConnection>
+        <url>https://github.com/whoizz/TwelveMonkeys</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -159,8 +159,8 @@
                     <version>3.3</version>
                     <inherited>true</inherited>
                     <configuration>
-                        <source>1.7</source>
-                        <target>1.7</target>
+                        <source>1.6</source>
+                        <target>1.6</target>
                         <showDeprecation>false</showDeprecation>
                         <debuglevel>source,lines</debuglevel>
                         <compilerArguments>

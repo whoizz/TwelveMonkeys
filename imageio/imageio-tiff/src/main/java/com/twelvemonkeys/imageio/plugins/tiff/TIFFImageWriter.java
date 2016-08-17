@@ -28,6 +28,50 @@
 
 package com.twelvemonkeys.imageio.plugins.tiff;
 
+import java.awt.Graphics2D;
+import java.awt.color.ColorSpace;
+import java.awt.color.ICC_ColorSpace;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentSampleModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.IndexColorModel;
+import java.awt.image.MultiPixelPackedSampleModel;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
+import java.awt.image.SinglePixelPackedSampleModel;
+import java.awt.image.WritableRaster;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.lang.reflect.Array;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
+
+import javax.imageio.IIOException;
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.metadata.IIOInvalidTreeException;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.metadata.IIOMetadataFormatImpl;
+import javax.imageio.spi.ImageWriterSpi;
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.ImageOutputStream;
+
 import com.twelvemonkeys.image.ImageUtil;
 import com.twelvemonkeys.imageio.ImageWriterBase;
 import com.twelvemonkeys.imageio.metadata.AbstractEntry;
@@ -41,24 +85,6 @@ import com.twelvemonkeys.imageio.util.IIOUtil;
 import com.twelvemonkeys.io.enc.EncoderStream;
 import com.twelvemonkeys.io.enc.PackBitsEncoder;
 import com.twelvemonkeys.lang.Validate;
-
-import javax.imageio.*;
-import javax.imageio.metadata.IIOInvalidTreeException;
-import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.metadata.IIOMetadataFormatImpl;
-import javax.imageio.spi.ImageWriterSpi;
-import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.ImageOutputStream;
-import java.awt.*;
-import java.awt.color.ColorSpace;
-import java.awt.color.ICC_ColorSpace;
-import java.awt.image.*;
-import java.io.*;
-import java.lang.reflect.Array;
-import java.nio.ByteBuffer;
-import java.util.*;
-import java.util.zip.Deflater;
-import java.util.zip.DeflaterOutputStream;
 
 /**
  * TIFFImageWriter
@@ -241,7 +267,7 @@ public final class TIFFImageWriter extends ImageWriterBase {
 
         // TODO: There shouldn't be necessary to create a separate map here, this should be handled in the
         // convertImageMetadata/getDefaultImageMetadata methods....
-        Map<Integer, Entry> entries = new LinkedHashMap<>();
+        Map<Integer, Entry> entries = new LinkedHashMap<Integer, Entry>();
         entries.put(TIFF.TAG_IMAGE_WIDTH, new TIFFEntry(TIFF.TAG_IMAGE_WIDTH, renderedImage.getWidth()));
         entries.put(TIFF.TAG_IMAGE_HEIGHT, new TIFFEntry(TIFF.TAG_IMAGE_HEIGHT, renderedImage.getHeight()));
         entries.put(TIFF.TAG_ORIENTATION, new TIFFEntry(TIFF.TAG_ORIENTATION, 1)); // (optional)
@@ -262,7 +288,7 @@ public final class TIFFImageWriter extends ImageWriterBase {
         int compression;
         if ((param == null || param.getCompressionMode() == TIFFImageWriteParam.MODE_COPY_FROM_METADATA)
                 && image.getMetadata() != null && metadata.getIFD().getEntryById(TIFF.TAG_COMPRESSION) != null) {
-            compression = (int) metadata.getIFD().getEntryById(TIFF.TAG_COMPRESSION).getValue();
+            compression = (Integer) metadata.getIFD().getEntryById(TIFF.TAG_COMPRESSION).getValue();
         }
         else {
             compression = TIFFImageWriteParam.getCompressionType(param);
@@ -519,7 +545,7 @@ public final class TIFFImageWriter extends ImageWriterBase {
 
         // Use predictor by default for LZW and ZLib/Deflate
         // TODO: Unless explicitly disabled in TIFFImageWriteParam
-        int compression = (int) entries.get(TIFF.TAG_COMPRESSION).getValue();
+        int compression = (Integer) entries.get(TIFF.TAG_COMPRESSION).getValue();
         OutputStream stream;
 
         switch (compression) {
@@ -575,11 +601,11 @@ public final class TIFFImageWriter extends ImageWriterBase {
                 long option = 0L;
 
                 if (compression != TIFFBaseline.COMPRESSION_CCITT_MODIFIED_HUFFMAN_RLE) {
-                    option = (long) entries.get(compression == TIFFExtension.COMPRESSION_CCITT_T4 ? TIFF.TAG_GROUP3OPTIONS : TIFF.TAG_GROUP4OPTIONS).getValue();
+                    option = (Long) entries.get(compression == TIFFExtension.COMPRESSION_CCITT_T4 ? TIFF.TAG_GROUP3OPTIONS : TIFF.TAG_GROUP4OPTIONS).getValue();
                 }
 
                 Entry fillOrderEntry = entries.get(TIFF.TAG_FILL_ORDER);
-                int fillOrder = (int) (fillOrderEntry != null ? fillOrderEntry.getValue() : TIFFBaseline.FILL_LEFT_TO_RIGHT);
+                int fillOrder = (Integer) (fillOrderEntry != null ? fillOrderEntry.getValue() : TIFFBaseline.FILL_LEFT_TO_RIGHT);
                 stream = IIOUtil.createStreamAdapter(imageOutput);
                 stream = new CCITTFaxEncoderStream(stream, image.getTileWidth(), image.getTileHeight(), compression, fillOrder, option);
 
@@ -910,7 +936,7 @@ public final class TIFFImageWriter extends ImageWriterBase {
     private TIFFImageMetadata initMeta(final Directory ifd, final ImageTypeSpecifier imageType, final ImageWriteParam param) {
         Validate.notNull(imageType, "imageType");
 
-        Map<Integer, Entry> entries = new LinkedHashMap<>(ifd != null ? ifd.size() + 10 : 20);
+        Map<Integer, Entry> entries = new LinkedHashMap<Integer, Entry>(ifd != null ? ifd.size() + 10 : 20);
 
         if (ifd != null) {
             for (Entry entry : ifd) {

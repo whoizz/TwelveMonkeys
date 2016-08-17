@@ -28,13 +28,22 @@
 
 package com.twelvemonkeys.imageio.plugins.tga;
 
-import com.twelvemonkeys.imageio.ImageReaderBase;
-import com.twelvemonkeys.imageio.util.IIOUtil;
-import com.twelvemonkeys.imageio.util.ImageTypeSpecifiers;
-import com.twelvemonkeys.io.LittleEndianDataInputStream;
-import com.twelvemonkeys.io.enc.DecoderStream;
-import com.twelvemonkeys.lang.Validate;
-import com.twelvemonkeys.xml.XMLSerializer;
+import java.awt.Rectangle;
+import java.awt.color.ColorSpace;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferUShort;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
+import java.io.DataInput;
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
@@ -44,17 +53,14 @@ import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.metadata.IIOMetadataFormatImpl;
 import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.ImageInputStream;
-import java.awt.*;
-import java.awt.color.ColorSpace;
-import java.awt.image.*;
-import java.io.DataInput;
-import java.io.File;
-import java.io.IOException;
-import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+
+import com.twelvemonkeys.imageio.ImageReaderBase;
+import com.twelvemonkeys.imageio.util.IIOUtil;
+import com.twelvemonkeys.imageio.util.ImageTypeSpecifiers;
+import com.twelvemonkeys.io.LittleEndianDataInputStream;
+import com.twelvemonkeys.io.enc.DecoderStream;
+import com.twelvemonkeys.lang.Validate;
+import com.twelvemonkeys.xml.XMLSerializer;
 
 public final class TGAImageReader extends ImageReaderBase {
     // http://www.fileformat.info/format/tga/egff.htm
@@ -93,7 +99,7 @@ public final class TGAImageReader extends ImageReaderBase {
     public Iterator<ImageTypeSpecifier> getImageTypes(final int imageIndex) throws IOException {
         ImageTypeSpecifier rawType = getRawImageType(imageIndex);
 
-        List<ImageTypeSpecifier> specifiers = new ArrayList<>();
+        List<ImageTypeSpecifier> specifiers = new ArrayList<ImageTypeSpecifier>();
 
         // TODO: Implement
         specifiers.add(rawType);

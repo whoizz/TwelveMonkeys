@@ -28,27 +28,32 @@
 
 package com.twelvemonkeys.contrib.tiff;
 
-import com.twelvemonkeys.contrib.tiff.TIFFUtilities.TIFFExtension;
-import com.twelvemonkeys.imageio.plugins.tiff.TIFFMedataFormat;
-import com.twelvemonkeys.io.FileUtil;
-import org.junit.Assert;
-import org.junit.Test;
-import org.w3c.dom.Node;
-
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.ImageOutputStream;
-import javax.xml.xpath.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.ImageOutputStream;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.w3c.dom.Node;
+
+import com.twelvemonkeys.contrib.tiff.TIFFUtilities.TIFFExtension;
+import com.twelvemonkeys.imageio.plugins.tiff.TIFFMedataFormat;
+import com.twelvemonkeys.io.FileUtil;
 
 /**
  * TIFFUtilitiesTest
@@ -108,7 +113,9 @@ public class TIFFUtilitiesTest {
         FileUtil.write(inputFile, data);
         inputStream.close();
 
-        File outputDirectory = Files.createTempDirectory("imageio").toFile();
+		File outputDirectory = File.createTempFile("imageio", null);
+		outputDirectory.delete();
+		outputDirectory.mkdir();        
 
         TIFFUtilities.split(inputFile, outputDirectory);
 

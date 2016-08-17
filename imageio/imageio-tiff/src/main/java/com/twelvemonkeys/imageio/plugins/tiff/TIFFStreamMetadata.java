@@ -28,16 +28,18 @@
 
 package com.twelvemonkeys.imageio.plugins.tiff;
 
-import com.twelvemonkeys.lang.Validate;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
+import static java.nio.ByteOrder.BIG_ENDIAN;
+
+import java.nio.ByteOrder;
 
 import javax.imageio.metadata.IIOInvalidTreeException;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.metadata.IIOMetadataNode;
-import java.nio.ByteOrder;
 
-import static java.nio.ByteOrder.BIG_ENDIAN;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+
+import com.twelvemonkeys.lang.Validate;
 
 /**
  * TIFFStreamMetadata.
@@ -106,14 +108,12 @@ public final class TIFFStreamMetadata extends IIOMetadata {
     }
 
     private ByteOrder getByteOrder(final String value) throws IIOInvalidTreeException {
-        switch (value) {
-            case "BIG_ENDIAN":
-                return ByteOrder.BIG_ENDIAN;
-            case "LITTLE_ENDIAN":
-                return ByteOrder.LITTLE_ENDIAN;
-            default:
-                return null;
-        }
+    	if ("BIG_ENDIAN".equals(value)) {
+    		return ByteOrder.BIG_ENDIAN;
+    	} else if ("LITTLE_ENDIAN".equals(value)) {
+    		return ByteOrder.LITTLE_ENDIAN;
+    	}
+    	return null;
     }
 
     @Override

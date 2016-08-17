@@ -28,14 +28,6 @@
 
 package com.twelvemonkeys.imageio.metadata.iptc;
 
-import com.twelvemonkeys.imageio.metadata.Directory;
-import com.twelvemonkeys.imageio.metadata.Entry;
-import com.twelvemonkeys.imageio.metadata.MetadataReader;
-import com.twelvemonkeys.lang.StringUtil;
-import com.twelvemonkeys.lang.Validate;
-
-import javax.imageio.IIOException;
-import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -46,6 +38,15 @@ import java.nio.charset.CodingErrorAction;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import javax.imageio.IIOException;
+import javax.imageio.stream.ImageInputStream;
+
+import com.twelvemonkeys.imageio.metadata.Directory;
+import com.twelvemonkeys.imageio.metadata.Entry;
+import com.twelvemonkeys.imageio.metadata.MetadataReader;
+import com.twelvemonkeys.lang.StringUtil;
+import com.twelvemonkeys.lang.Validate;
 
 /**
  * IPTCReader
@@ -65,7 +66,7 @@ public final class IPTCReader extends MetadataReader {
     public Directory read(final ImageInputStream input) throws IOException {
         Validate.notNull(input, "input");
 
-        Map<Short, Entry> entries = new LinkedHashMap<>();
+        Map<Short, Entry> entries = new LinkedHashMap<Short, Entry>();
 
         // 0x1c identifies start of a tag
         while (input.read() == 0x1c) {

@@ -29,7 +29,7 @@ public class ThumbsDBProviderInfoTest extends ReaderWriterProviderInfoTest {
         assertNotNull(names);
         assertFalse(names.length == 0);
 
-        List<String> list = new ArrayList<>(asList(names));
+        List<String> list = new ArrayList<String>(asList(names));
         assertTrue(list.remove("Thumbs DB")); // No dupes of this name
 
         for (String name : list) {

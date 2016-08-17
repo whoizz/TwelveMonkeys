@@ -28,16 +28,21 @@
 
 package com.twelvemonkeys.imageio.plugins.tiff;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * CCITTFaxDecoderStreamTest
@@ -231,7 +236,7 @@ public class CCITTFaxDecoderStreamTest {
     @Test
     public void testMoreChangesThanColumns() throws IOException {
         // Produces an CCITT Stream with 9 changes on 8 columns.
-        byte[] data = new byte[] {(byte) 0b10101010};
+        byte[] data = new byte[] {(byte) 0xAA};
         ByteArrayOutputStream imageOutput = new ByteArrayOutputStream();
         OutputStream outputSteam = new CCITTFaxEncoderStream(imageOutput, 8, 1, TIFFExtension.COMPRESSION_CCITT_T6, 1, 0L);
         outputSteam.write(data);

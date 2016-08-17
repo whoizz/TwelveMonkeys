@@ -28,17 +28,6 @@
 
 package com.twelvemonkeys.contrib.tiff;
 
-import com.twelvemonkeys.imageio.metadata.*;
-import com.twelvemonkeys.imageio.metadata.exif.EXIFReader;
-import com.twelvemonkeys.imageio.metadata.exif.EXIFWriter;
-import com.twelvemonkeys.imageio.metadata.exif.Rational;
-import com.twelvemonkeys.imageio.metadata.exif.TIFF;
-import com.twelvemonkeys.lang.Validate;
-
-import javax.imageio.IIOException;
-import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.ImageOutputStream;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -49,6 +38,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.imageio.IIOException;
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.ImageOutputStream;
+
+import com.twelvemonkeys.imageio.metadata.AbstractDirectory;
+import com.twelvemonkeys.imageio.metadata.AbstractEntry;
+import com.twelvemonkeys.imageio.metadata.CompoundDirectory;
+import com.twelvemonkeys.imageio.metadata.Directory;
+import com.twelvemonkeys.imageio.metadata.Entry;
+import com.twelvemonkeys.imageio.metadata.exif.EXIFReader;
+import com.twelvemonkeys.imageio.metadata.exif.EXIFWriter;
+import com.twelvemonkeys.imageio.metadata.exif.Rational;
+import com.twelvemonkeys.imageio.metadata.exif.TIFF;
+import com.twelvemonkeys.lang.Validate;
 
 /**
  * TIFFUtilities for manipulation TIFF Images and Metadata
@@ -107,7 +112,7 @@ public class TIFFUtilities {
      */
     public static List<File> split(File inputFile, File outputDirectory) throws IOException {
         ImageInputStream input = null;
-        List<File> outputFiles = new ArrayList<>();
+        List<File> outputFiles = new ArrayList<File>();
         try {
             input = ImageIO.createImageInputStream(inputFile);
             List<TIFFPage> pages = getPages(input);
@@ -464,7 +469,7 @@ public class TIFFUtilities {
             Validate.isTrue(degree % 90 == 0 && degree > 0 && degree < 360,
                     "Only rotations by 90, 180 and 270 degree are supported");
 
-            ArrayList<Entry> newIDFData = new ArrayList<>();
+            ArrayList<Entry> newIDFData = new ArrayList<Entry>();
             Iterator<Entry> it = IFD.iterator();
             while (it.hasNext()) {
                 newIDFData.add(it.next());

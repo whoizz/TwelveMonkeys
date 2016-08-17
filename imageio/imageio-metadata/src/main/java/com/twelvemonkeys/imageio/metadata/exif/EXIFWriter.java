@@ -28,20 +28,24 @@
 
 package com.twelvemonkeys.imageio.metadata.exif;
 
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.nio.ByteOrder;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import javax.imageio.IIOException;
+import javax.imageio.stream.ImageOutputStream;
+
 import com.twelvemonkeys.imageio.metadata.CompoundDirectory;
 import com.twelvemonkeys.imageio.metadata.Directory;
 import com.twelvemonkeys.imageio.metadata.Entry;
 import com.twelvemonkeys.imageio.metadata.MetadataWriter;
 import com.twelvemonkeys.lang.Validate;
-
-import javax.imageio.IIOException;
-import javax.imageio.stream.ImageOutputStream;
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.nio.ByteOrder;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
 
 /**
  * EXIFWriter
@@ -188,7 +192,7 @@ public final class EXIFWriter extends MetadataWriter {
 
     private Directory ensureOrderedDirectory(final Directory directory) {
         if (!isSorted(directory)) {
-            List<Entry> entries = new ArrayList<>(directory.size());
+            List<Entry> entries = new ArrayList<Entry>(directory.size());
 
             for (Entry entry : directory) {
                 entries.add(entry);
@@ -363,7 +367,7 @@ public final class EXIFWriter extends MetadataWriter {
                     stream.writeByte(((Number) value).intValue());
                     break;
                 case TIFF.TYPE_ASCII:
-                    byte[] bytes = ((String) value).getBytes(StandardCharsets.UTF_8);
+                    byte[] bytes = ((String) value).getBytes("UTF-8");
                     stream.write(bytes);
                     stream.write(0);
                     break;

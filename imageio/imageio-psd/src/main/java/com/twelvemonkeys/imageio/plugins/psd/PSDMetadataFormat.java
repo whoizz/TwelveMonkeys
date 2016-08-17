@@ -28,16 +28,18 @@
 
 package com.twelvemonkeys.imageio.plugins.psd;
 
-import com.twelvemonkeys.imageio.metadata.Directory;
-import org.w3c.dom.Document;
-
-import javax.imageio.ImageTypeSpecifier;
-import javax.imageio.metadata.IIOMetadataFormatImpl;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.metadata.IIOMetadataFormatImpl;
+
+import org.w3c.dom.Document;
+
+import com.twelvemonkeys.imageio.metadata.Directory;
 
 /**
  * PSDMetadataFormat
@@ -261,7 +263,7 @@ public final class PSDMetadataFormat extends IIOMetadataFormatImpl {
     }
 
     private static <T> List<T> asListNoNulls(final T[] values) {
-        List<T> list = new ArrayList<>(values.length);
+        List<T> list = new ArrayList<T>(values.length);
 
         for (T value : values) {
             if (value != null) {

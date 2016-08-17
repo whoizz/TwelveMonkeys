@@ -28,19 +28,20 @@
 
 package com.twelvemonkeys.imageio.metadata.psd;
 
-import com.twelvemonkeys.imageio.metadata.Directory;
-import com.twelvemonkeys.imageio.metadata.MetadataReader;
-import com.twelvemonkeys.imageio.stream.SubImageInputStream;
-import com.twelvemonkeys.lang.StringUtil;
-import com.twelvemonkeys.lang.Validate;
-
-import javax.imageio.IIOException;
-import javax.imageio.stream.ImageInputStream;
 import java.io.DataInput;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.imageio.IIOException;
+import javax.imageio.stream.ImageInputStream;
+
+import com.twelvemonkeys.imageio.metadata.Directory;
+import com.twelvemonkeys.imageio.metadata.MetadataReader;
+import com.twelvemonkeys.imageio.stream.SubImageInputStream;
+import com.twelvemonkeys.lang.StringUtil;
+import com.twelvemonkeys.lang.Validate;
 
 /**
  * PhotoshopReader
@@ -59,7 +60,7 @@ public final class PSDReader extends MetadataReader {
     public Directory read(final ImageInputStream input) throws IOException {
         Validate.notNull(input, "input");
 
-        List<PSDEntry> entries = new ArrayList<>();
+        List<PSDEntry> entries = new ArrayList<PSDEntry>();
 
         while (true) {
             try {

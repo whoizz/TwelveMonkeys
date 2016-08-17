@@ -26,17 +26,17 @@ package com.twelvemonkeys.imageio.plugins.tiff;/*
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.twelvemonkeys.imageio.util.ImageReaderAbstractTest;
-import org.junit.Ignore;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.contains;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReadParam;
-import javax.imageio.ImageReader;
-import javax.imageio.event.IIOReadWarningListener;
-import javax.imageio.spi.ImageReaderSpi;
-import javax.imageio.stream.ImageInputStream;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Arrays;
@@ -44,10 +44,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.contains;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import javax.imageio.event.IIOReadWarningListener;
+import javax.imageio.spi.ImageReaderSpi;
+import javax.imageio.stream.ImageInputStream;
+
+import org.junit.Ignore;
+import org.junit.Test;
+
+import com.twelvemonkeys.imageio.util.ImageReaderAbstractTest;
 
 /**
  * TIFFImageReaderTest
@@ -190,7 +197,9 @@ public class TIFFImageReaderTest extends ImageReaderAbstractTest<TIFFImageReader
     public void testReadOldStyleJPEGGrayscale() throws IOException {
         TestData testData = new TestData(getClassLoaderResource("/tiff/grayscale-old-style-jpeg.tiff"), new Dimension(600, 600));
 
-        try (ImageInputStream stream = testData.getInputStream()) {
+        ImageInputStream stream = null;
+        try {
+        	stream = testData.getInputStream();
             TIFFImageReader reader = createReader();
             reader.setInput(stream);
             BufferedImage image = reader.read(0);
@@ -198,13 +207,20 @@ public class TIFFImageReaderTest extends ImageReaderAbstractTest<TIFFImageReader
             assertNotNull(image);
             assertEquals(testData.getDimension(0), new Dimension(image.getWidth(), image.getHeight()));
         }
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
+        }
     }
 
     @Test
     public void testReadOldStyleJPEGIncorrectJPEGInterchangeFormatLength() throws IOException {
         TestData testData = new TestData(getClassLoaderResource("/tiff/old-style-jpeg-bogus-jpeginterchangeformatlength.tif"), new Dimension(1632, 2328));
 
-        try (ImageInputStream stream = testData.getInputStream()) {
+        ImageInputStream stream = null;
+        try {
+        	stream = testData.getInputStream();
             TIFFImageReader reader = createReader();
             reader.setInput(stream);
 
@@ -217,13 +233,20 @@ public class TIFFImageReaderTest extends ImageReaderAbstractTest<TIFFImageReader
             assertEquals(testData.getDimension(0), new Dimension(image.getWidth(), image.getHeight()));
             verify(warningListener, atLeastOnce()).warningOccurred(eq(reader), contains("JPEGInterchangeFormatLength"));
         }
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
+        }
     }
 
     @Test
     public void testReadIncompatibleICCProfileIgnoredWithWarning() throws IOException {
         TestData testData = new TestData(getClassLoaderResource("/tiff/rgb-with-embedded-cmyk-icc.tif"), new Dimension(1500, 1500));
 
-        try (ImageInputStream stream = testData.getInputStream()) {
+        ImageInputStream stream = null;
+        try {
+        	stream = testData.getInputStream();
             TIFFImageReader reader = createReader();
             reader.setInput(stream);
 
@@ -236,6 +259,11 @@ public class TIFFImageReaderTest extends ImageReaderAbstractTest<TIFFImageReader
             assertEquals(testData.getDimension(0), new Dimension(image.getWidth(), image.getHeight()));
             verify(warningListener, atLeastOnce()).warningOccurred(eq(reader), contains("ICC"));
         }
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
+        }
     }
 
     @Test
@@ -244,7 +272,9 @@ public class TIFFImageReaderTest extends ImageReaderAbstractTest<TIFFImageReader
         // but the JPEGImageReader will detect the data as RGB due to non-subsampled data and SOF ids.
         TestData testData = new TestData(getClassLoaderResource("/tiff/xerox-jpeg-ycbcr-weird-coefficients.tif"), new Dimension(2482, 3520));
 
-        try (ImageInputStream stream = testData.getInputStream()) {
+        ImageInputStream stream = null;
+        try {
+        	stream = testData.getInputStream();
             TIFFImageReader reader = createReader();
             reader.setInput(stream);
 
@@ -269,6 +299,11 @@ public class TIFFImageReaderTest extends ImageReaderAbstractTest<TIFFImageReader
             assertEquals("Green", 0xf2, (argb >> 8) & 0xff);
             assertEquals("Blue", 0xff, argb & 0xff);
         }
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
+        }
     }
 
     @Ignore("Known issue")
@@ -278,7 +313,9 @@ public class TIFFImageReaderTest extends ImageReaderAbstractTest<TIFFImageReader
         // but the JPEGImageReader will detect the data as RGB due to non-subsampled data and SOF ids.
         TestData testData = new TestData(getClassLoaderResource("/tiff/xerox-jpeg-ycbcr-weird-coefficients.tif"), new Dimension(2482, 3520));
 
-        try (ImageInputStream stream = testData.getInputStream()) {
+        ImageInputStream stream = null;
+        try {
+        	stream = testData.getInputStream();
             TIFFImageReader reader = createReader();
             reader.setInput(stream);
 
@@ -289,13 +326,20 @@ public class TIFFImageReaderTest extends ImageReaderAbstractTest<TIFFImageReader
             assertNotNull(image);
             assertEquals(new Dimension(8, 8), new Dimension(image.getWidth(), image.getHeight()));
         }
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
+        }
     }
 
     @Test
     public void testColorMap8Bit() throws IOException {
         TestData testData = new TestData(getClassLoaderResource("/tiff/scan-lzw-8bit-colormap.tiff"), new Dimension(2550, 3300));
 
-        try (ImageInputStream stream = testData.getInputStream()) {
+        ImageInputStream stream = null;
+        try {
+        	stream = testData.getInputStream();
             TIFFImageReader reader = createReader();
             reader.setInput(stream);
 
@@ -311,13 +355,20 @@ public class TIFFImageReaderTest extends ImageReaderAbstractTest<TIFFImageReader
             assertEquals(0xffffffff, image.getRGB(0, 0)); // The pixel at 0, 0 should be white, not black
             verify(warningListener, atLeastOnce()).warningOccurred(eq(reader), contains("ColorMap"));
         }
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
+        }
     }
 
     @Test
     public void testBadICCProfile() throws IOException {
         TestData testData = new TestData(getClassLoaderResource("/tiff/general-cmm-error.tif"), new Dimension(1181, 864));
 
-        try (ImageInputStream stream = testData.getInputStream()) {
+        ImageInputStream stream = null;
+        try {
+        	stream = testData.getInputStream();
             TIFFImageReader reader = createReader();
             reader.setInput(stream);
 
@@ -332,6 +383,11 @@ public class TIFFImageReaderTest extends ImageReaderAbstractTest<TIFFImageReader
             assertEquals(new Dimension(8, 8), new Dimension(image.getWidth(), image.getHeight()));
             verify(warningListener, atLeastOnce()).warningOccurred(eq(reader), contains("ICC profile"));
         }
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
+        }
     }
 
     @Test
@@ -339,8 +395,13 @@ public class TIFFImageReaderTest extends ImageReaderAbstractTest<TIFFImageReader
         TestData expectedData = new TestData(getClassLoaderResource("/tiff/depth/flower-rgb-contig-08.tif"), new Dimension(73, 43));
         TestData testData = new TestData(getClassLoaderResource("/tiff/depth/flower-rgb-planar-08.tif"), new Dimension(73, 43));
 
-        try (ImageInputStream expectedStream = expectedData.getInputStream(); ImageInputStream stream = testData.getInputStream()) {
-            TIFFImageReader reader = createReader();
+        ImageInputStream expectedStream = null;
+        ImageInputStream stream = null;
+        try {
+        	expectedStream = expectedData.getInputStream();
+        	stream = testData.getInputStream();
+        	
+        	TIFFImageReader reader = createReader();
 
             reader.setInput(expectedStream);
             BufferedImage expected = reader.read(0, null);
@@ -349,6 +410,14 @@ public class TIFFImageReaderTest extends ImageReaderAbstractTest<TIFFImageReader
             BufferedImage actual = reader.read(0, null);
 
             assertImageDataEquals("", expected, actual);
+        }
+        finally {
+        	if (expectedStream != null) {
+        		expectedStream.close();
+        	}
+        	if (stream != null) {
+        		stream.close();
+        	}
         }
     }
 
@@ -357,8 +426,13 @@ public class TIFFImageReaderTest extends ImageReaderAbstractTest<TIFFImageReader
         TestData expectedData = new TestData(getClassLoaderResource("/tiff/depth/flower-rgb-contig-16.tif"), new Dimension(73, 43));
         TestData testData = new TestData(getClassLoaderResource("/tiff/depth/flower-rgb-planar-16.tif"), new Dimension(73, 43));
 
-        try (ImageInputStream expectedStream = expectedData.getInputStream(); ImageInputStream stream = testData.getInputStream()) {
-            TIFFImageReader reader = createReader();
+        ImageInputStream expectedStream = null;
+        ImageInputStream stream = null;
+        try {
+        	expectedStream = expectedData.getInputStream();
+        	stream = testData.getInputStream();
+        	
+        	TIFFImageReader reader = createReader();
 
             reader.setInput(expectedStream);
             BufferedImage expected = reader.read(0, null);
@@ -367,6 +441,14 @@ public class TIFFImageReaderTest extends ImageReaderAbstractTest<TIFFImageReader
             BufferedImage actual = reader.read(0, null);
 
             assertImageDataEquals("", expected, actual);
+        }
+        finally {
+        	if (expectedStream != null) {
+        		expectedStream.close();
+        	}
+        	if (stream != null) {
+        		stream.close();
+        	}
         }
     }
 
@@ -375,7 +457,43 @@ public class TIFFImageReaderTest extends ImageReaderAbstractTest<TIFFImageReader
         TestData expectedData = new TestData(getClassLoaderResource("/tiff/depth/flower-separated-contig-08.tif"), new Dimension(73, 43));
         TestData testData = new TestData(getClassLoaderResource("/tiff/depth/flower-separated-planar-08.tif"), new Dimension(73, 43));
 
-        try (ImageInputStream expectedStream = expectedData.getInputStream(); ImageInputStream stream = testData.getInputStream()) {
+        ImageInputStream expectedStream = null;
+        ImageInputStream stream = null;
+        try {
+        	expectedStream = expectedData.getInputStream();
+        	stream = testData.getInputStream();
+        	
+        	TIFFImageReader reader = createReader();
+
+            reader.setInput(expectedStream);
+            BufferedImage expected = reader.read(0, null);
+
+            reader.setInput(stream);
+            BufferedImage actual = reader.read(0, null);
+
+            assertImageDataEquals("", expected, actual);
+        }
+        finally {
+        	if (expectedStream != null) {
+        		expectedStream.close();
+        	}
+        	if (stream != null) {
+        		stream.close();
+        	}
+        }
+    }
+
+    @Test
+    public void testPlanarEqualInterleavedSeparated16() throws IOException {
+        TestData expectedData = new TestData(getClassLoaderResource("/tiff/depth/flower-separated-contig-16.tif"), new Dimension(73, 43));
+        TestData testData = new TestData(getClassLoaderResource("/tiff/depth/flower-separated-planar-16.tif"), new Dimension(73, 43));
+
+        ImageInputStream expectedStream = null;
+        ImageInputStream stream = null;
+        try {
+        	expectedStream = expectedData.getInputStream();
+        	stream = testData.getInputStream();
+        	
             TIFFImageReader reader = createReader();
 
             reader.setInput(expectedStream);
@@ -386,23 +504,13 @@ public class TIFFImageReaderTest extends ImageReaderAbstractTest<TIFFImageReader
 
             assertImageDataEquals("", expected, actual);
         }
-    }
-
-    @Test
-    public void testPlanarEqualInterleavedSeparated16() throws IOException {
-        TestData expectedData = new TestData(getClassLoaderResource("/tiff/depth/flower-separated-contig-16.tif"), new Dimension(73, 43));
-        TestData testData = new TestData(getClassLoaderResource("/tiff/depth/flower-separated-planar-16.tif"), new Dimension(73, 43));
-
-        try (ImageInputStream expectedStream = expectedData.getInputStream(); ImageInputStream stream = testData.getInputStream()) {
-            TIFFImageReader reader = createReader();
-
-            reader.setInput(expectedStream);
-            BufferedImage expected = reader.read(0, null);
-
-            reader.setInput(stream);
-            BufferedImage actual = reader.read(0, null);
-
-            assertImageDataEquals("", expected, actual);
+        finally {
+        	if (expectedStream != null) {
+        		expectedStream.close();
+        	}
+        	if (stream != null) {
+        		stream.close();
+        	}
         }
     }
 
@@ -424,7 +532,10 @@ public class TIFFImageReaderTest extends ImageReaderAbstractTest<TIFFImageReader
             final AtomicBoolean foundWarning = new AtomicBoolean(false);
             final int expectedResult = results[i];
 
-            try (ImageInputStream iis = ImageIO.createImageInputStream(getClassLoaderResource(files[i]))) {
+            ImageInputStream iis = null;
+            try {
+            	iis = ImageIO.createImageInputStream(getClassLoaderResource(files[i]));
+            	
                 TIFFImageReader reader = createReader();
 
                 reader.setInput(iis);
@@ -437,6 +548,11 @@ public class TIFFImageReaderTest extends ImageReaderAbstractTest<TIFFImageReader
                     }
                 });
                 reader.read(0);
+            }
+            finally {
+            	if (iis != null) {
+            		iis.close();
+            	}
             }
             assertTrue("no correct guess for PhotometricInterpretation: " + results[i], foundWarning.get());
         }

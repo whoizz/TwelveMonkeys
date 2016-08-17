@@ -28,17 +28,43 @@
 
 package com.twelvemonkeys.imageio.plugins.jpeg;
 
-import com.twelvemonkeys.imageio.util.ImageReaderAbstractTest;
-import org.hamcrest.core.IsInstanceOf;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.internal.matchers.GreaterThan;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeNoException;
+import static org.junit.Assume.assumeNotNull;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-import javax.imageio.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.color.ColorSpace;
+import java.awt.color.ICC_Profile;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.io.EOFException;
+import java.io.IOException;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.imageio.IIOException;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.event.IIOReadWarningListener;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.metadata.IIOMetadataFormatImpl;
@@ -48,22 +74,17 @@ import javax.imageio.plugins.jpeg.JPEGQTable;
 import javax.imageio.spi.IIORegistry;
 import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.ImageInputStream;
-import java.awt.*;
-import java.awt.color.ColorSpace;
-import java.awt.color.ICC_Profile;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.io.EOFException;
-import java.io.IOException;
-import java.util.*;
-import java.util.List;
 
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeNoException;
-import static org.junit.Assume.assumeNotNull;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import org.hamcrest.core.IsInstanceOf;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.mockito.internal.matchers.GreaterThan;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import com.twelvemonkeys.imageio.util.ImageReaderAbstractTest;
 
 /**
  * JPEGImageReaderTest
@@ -1166,7 +1187,7 @@ public class JPEGImageReaderTest extends ImageReaderAbstractTest<JPEGImageReader
                     assertTrue(markerSequences.getLength() == 1 || markerSequences.getLength() == 2); // In case of JPEG encoded thumbnail, there will be 2
                     IIOMetadataNode markerSequence = (IIOMetadataNode) markerSequences.item(0);
                     assertNotNull(markerSequence);
-                    assertThat(markerSequence.getChildNodes().getLength(), new GreaterThan<>(0));
+                    assertThat(markerSequence.getChildNodes().getLength(), new GreaterThan<Integer>(0));
 
                     NodeList unknowns = markerSequence.getElementsByTagName("unknown");
                     for (int j = 0; j < unknowns.getLength(); j++) {
@@ -1356,7 +1377,7 @@ public class JPEGImageReaderTest extends ImageReaderAbstractTest<JPEGImageReader
     }
 
     private List<IIOMetadataNode> sortNodes(final NodeList nodes) {
-        ArrayList<IIOMetadataNode> sortedNodes = new ArrayList<>(new AbstractList<IIOMetadataNode>() {
+        ArrayList<IIOMetadataNode> sortedNodes = new ArrayList<IIOMetadataNode>(new AbstractList<IIOMetadataNode>() {
             @Override
             public IIOMetadataNode get(int index) {
                 return (IIOMetadataNode) nodes.item(index);

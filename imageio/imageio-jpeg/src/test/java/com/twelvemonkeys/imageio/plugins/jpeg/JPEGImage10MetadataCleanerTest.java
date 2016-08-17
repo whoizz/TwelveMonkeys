@@ -1,9 +1,10 @@
 package com.twelvemonkeys.imageio.plugins.jpeg;
 
-import com.twelvemonkeys.imageio.stream.URLImageInputStreamSpi;
-import org.junit.Test;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.Arrays;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -12,11 +13,12 @@ import javax.imageio.metadata.IIOMetadataNode;
 import javax.imageio.spi.IIORegistry;
 import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.ImageInputStream;
-import java.util.Arrays;
-import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.Test;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import com.twelvemonkeys.imageio.stream.URLImageInputStreamSpi;
 
 /**
  * JPEGImage10MetadataCleanerTest.
@@ -44,9 +46,12 @@ public class JPEGImage10MetadataCleanerTest {
         List<String> testData = Arrays.asList("/jpeg/5dhtsegments.jpg", "/jpeg/6dhtsegments.jpg");
 
         for (String data : testData) {
-            try (ImageInputStream origInput = ImageIO.createImageInputStream(getClass().getResource(data));
-                 ImageInputStream input = ImageIO.createImageInputStream(getClass().getResource(data))) {
-
+        	ImageInputStream origInput = null;
+        	ImageInputStream input = null;
+            try {
+            	origInput = ImageIO.createImageInputStream(getClass().getResource(data));
+            	input = ImageIO.createImageInputStream(getClass().getResource(data));
+            	
                 ImageReader origReader = SPI.delegateProvider.createReaderInstance();
                 origReader.setInput(origInput);
 
@@ -90,6 +95,14 @@ public class JPEGImage10MetadataCleanerTest {
 
                 reader.dispose();
                 origReader.dispose();
+            }
+            finally {
+            	if (origInput != null) {
+            		origInput.close();
+            	}
+            	if (input != null) {
+            		input.close();
+            	}
             }
         }
     }

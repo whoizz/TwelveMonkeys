@@ -28,21 +28,29 @@
 
 package com.twelvemonkeys.imageio.util;
 
-import com.twelvemonkeys.image.ImageUtil;
-import com.twelvemonkeys.imageio.stream.URLImageInputStreamSpi;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.InOrder;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
-import javax.imageio.*;
-import javax.imageio.event.IIOReadProgressListener;
-import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.spi.IIORegistry;
-import javax.imageio.spi.ImageReaderSpi;
-import javax.imageio.stream.ImageInputStream;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
@@ -53,8 +61,25 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import javax.imageio.IIOException;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.event.IIOReadProgressListener;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.spi.IIORegistry;
+import javax.imageio.spi.ImageReaderSpi;
+import javax.imageio.stream.ImageInputStream;
+
+import org.junit.Ignore;
+import org.junit.Test;
+import org.mockito.InOrder;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import com.twelvemonkeys.image.ImageUtil;
+import com.twelvemonkeys.imageio.stream.URLImageInputStreamSpi;
 
 /**
  * ImageReaderAbstractTest
@@ -83,7 +108,10 @@ public abstract class ImageReaderAbstractTest<T extends ImageReader> {
         try {
             return getReaderClass().newInstance();
         }
-        catch (InstantiationException | IllegalAccessException e) {
+        catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        }
+        catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -1388,7 +1416,15 @@ public abstract class ImageReaderAbstractTest<T extends ImageReader> {
                 reader.read(0, param);
                 fail("Expected to throw exception with illegal type specifier");
             }
-            catch (IIOException | IllegalArgumentException expected) {
+            catch (IIOException expected) {
+                // TODO: This is thrown by ImageReader.getDestination. But are we happy with that?
+                String message = expected.getMessage().toLowerCase();
+                if (!(message.contains("destination") && message.contains("type"))) {
+                    // Allow this to bubble up, du to a bug in the Sun PNGImageReader
+                    throw expected;
+                }
+            }
+            catch (IllegalArgumentException expected) {
                 // TODO: This is thrown by ImageReader.getDestination. But are we happy with that?
                 String message = expected.getMessage().toLowerCase();
                 if (!(message.contains("destination") && message.contains("type"))) {
@@ -1400,12 +1436,12 @@ public abstract class ImageReaderAbstractTest<T extends ImageReader> {
     }
 
     private List<ImageTypeSpecifier> createIllegalTypes(Iterator<ImageTypeSpecifier> pValidTypes) {
-        List<ImageTypeSpecifier> allTypes = new ArrayList<>();
+        List<ImageTypeSpecifier> allTypes = new ArrayList<ImageTypeSpecifier>();
         for (int i = BufferedImage.TYPE_INT_RGB; i < BufferedImage.TYPE_BYTE_INDEXED; i++) {
             allTypes.add(ImageTypeSpecifier.createFromBufferedImageType(i));
         }
 
-        List<ImageTypeSpecifier> illegalTypes = new ArrayList<>(allTypes);
+        List<ImageTypeSpecifier> illegalTypes = new ArrayList<ImageTypeSpecifier>(allTypes);
         while (pValidTypes.hasNext()) {
             ImageTypeSpecifier valid = pValidTypes.next();
             boolean removed = illegalTypes.remove(valid);
@@ -1635,12 +1671,12 @@ public abstract class ImageReaderAbstractTest<T extends ImageReader> {
                 throw new IllegalArgumentException("input == null");
             }
 
-            sizes = new ArrayList<>();
-            images = new ArrayList<>();
+            sizes = new ArrayList<Dimension>();
+            images = new ArrayList<BufferedImage>();
 
             List<Dimension> sizes = pSizes;
             if (sizes == null) {
-                sizes = new ArrayList<>();
+                sizes = new ArrayList<Dimension>();
                 if (pImages != null) {
                     for (BufferedImage image : pImages) {
                         sizes.add(new Dimension(image.getWidth(), image.getHeight()));

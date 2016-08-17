@@ -1,16 +1,20 @@
 package com.twelvemonkeys.image;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.GradientPaint;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImagingOpException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * ResampleOpTestCase
@@ -69,7 +73,7 @@ public class ResampleOpTestCase {
     }
 
     private void assertResampleBufferedImageTypes(final int pFilterType) {
-        List<String> exceptions = new ArrayList<>();
+        List<String> exceptions = new ArrayList<String>();
 
         // Test all image types in BufferedImage
         for (int type = BufferedImage.TYPE_INT_ARGB; type <= BufferedImage.TYPE_BYTE_INDEXED; type++) {

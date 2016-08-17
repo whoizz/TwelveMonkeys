@@ -1,20 +1,22 @@
 package com.twelvemonkeys.imageio.metadata.iptc;
 
-import com.twelvemonkeys.imageio.metadata.Directory;
-import com.twelvemonkeys.imageio.metadata.MetadataWriter;
-import com.twelvemonkeys.imageio.metadata.MetadataWriterAbstractTest;
-import com.twelvemonkeys.imageio.stream.ByteArrayImageInputStream;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeNotNull;
 
-import javax.imageio.stream.MemoryCacheImageOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeNotNull;
+import javax.imageio.stream.MemoryCacheImageOutputStream;
+
+import org.junit.Test;
+
+import com.twelvemonkeys.imageio.metadata.Directory;
+import com.twelvemonkeys.imageio.metadata.MetadataWriter;
+import com.twelvemonkeys.imageio.metadata.MetadataWriterAbstractTest;
+import com.twelvemonkeys.imageio.stream.ByteArrayImageInputStream;
 
 /**
  * IPTCWriterTest.
@@ -55,7 +57,7 @@ public class IPTCWriterTest extends MetadataWriterAbstractTest {
 
     @Test
     public void testWrite() throws IOException {
-        List<IPTCEntry> entries = new ArrayList<>();
+        List<IPTCEntry> entries = new ArrayList<IPTCEntry>();
         entries.add(new IPTCEntry(IPTC.TAG_KEYWORDS, new String[] {"Uno", "Due", "Tre"}));
 
         Directory iptc = new IPTCDirectory(entries);

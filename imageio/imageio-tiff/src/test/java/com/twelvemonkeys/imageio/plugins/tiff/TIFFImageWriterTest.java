@@ -28,6 +28,40 @@
 
 package com.twelvemonkeys.imageio.plugins.tiff;
 
+import static com.twelvemonkeys.imageio.plugins.tiff.TIFFImageMetadataTest.createTIFFFieldNode;
+import static com.twelvemonkeys.imageio.util.ImageReaderAbstractTest.assertRGBEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeNotNull;
+
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.metadata.IIOMetadataFormatImpl;
+import javax.imageio.metadata.IIOMetadataNode;
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.ImageOutputStream;
+
+import org.junit.Test;
+import org.w3c.dom.NodeList;
+
 import com.twelvemonkeys.imageio.metadata.Directory;
 import com.twelvemonkeys.imageio.metadata.Entry;
 import com.twelvemonkeys.imageio.metadata.exif.EXIFReader;
@@ -36,29 +70,6 @@ import com.twelvemonkeys.imageio.metadata.exif.TIFF;
 import com.twelvemonkeys.imageio.stream.ByteArrayImageInputStream;
 import com.twelvemonkeys.imageio.util.ImageWriterAbstractTestCase;
 import com.twelvemonkeys.io.FastByteArrayOutputStream;
-import org.junit.Test;
-import org.w3c.dom.NodeList;
-
-import javax.imageio.*;
-import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.metadata.IIOMetadataFormatImpl;
-import javax.imageio.metadata.IIOMetadataNode;
-import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.ImageOutputStream;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
-import java.io.*;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-
-import static com.twelvemonkeys.imageio.plugins.tiff.TIFFImageMetadataTest.createTIFFFieldNode;
-import static com.twelvemonkeys.imageio.util.ImageReaderAbstractTest.assertRGBEquals;
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeNotNull;
 
 /**
  * TIFFImageWriterTest
@@ -104,7 +115,9 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
         ImageWriter writer = createImageWriter();
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
-        try (ImageOutputStream stream = ImageIO.createImageOutputStream(buffer)) {
+        ImageOutputStream stream = null;
+        try {
+        	stream = ImageIO.createImageOutputStream(buffer);
             writer.setOutput(stream);
 
             String nativeFormat = TIFFMedataFormat.SUN_NATIVE_IMAGE_METADATA_FORMAT_NAME;
@@ -126,6 +139,11 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
         catch (IOException e) {
             e.printStackTrace();
             fail(e.getMessage());
+        }
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
         }
 
         assertTrue("No image data written", buffer.size() > 0);
@@ -154,7 +172,9 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
         ImageWriter writer = createImageWriter();
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
-        try (ImageOutputStream stream = ImageIO.createImageOutputStream(buffer)) {
+        ImageOutputStream stream = null;
+        try {
+        	stream = ImageIO.createImageOutputStream(buffer);
             writer.setOutput(stream);
 
             String nativeFormat = TIFFMedataFormat.SUN_NATIVE_IMAGE_METADATA_FORMAT_NAME;
@@ -175,7 +195,12 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
             e.printStackTrace();
             fail(e.getMessage());
         }
-
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
+        }
+        
         assertTrue("No image data written", buffer.size() > 0);
 
         Directory ifds = new EXIFReader().read(new ByteArrayImageInputStream(buffer.toByteArray()));
@@ -196,7 +221,9 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
         ImageWriter writer = createImageWriter();
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
-        try (ImageOutputStream stream = ImageIO.createImageOutputStream(buffer)) {
+        ImageOutputStream stream = null;
+        try {
+        	stream = ImageIO.createImageOutputStream(buffer);
             writer.setOutput(stream);
 
             String standardFormat = IIOMetadataFormatImpl.standardMetadataFormatName;
@@ -222,6 +249,11 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
         catch (IOException e) {
             e.printStackTrace();
             fail(e.getMessage());
+        }
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
         }
 
         assertTrue("No image data written", buffer.size() > 0);
@@ -250,7 +282,9 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
         ImageWriter writer = createImageWriter();
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
-        try (ImageOutputStream stream = ImageIO.createImageOutputStream(buffer)) {
+        ImageOutputStream stream = null;
+        try {
+        	stream = ImageIO.createImageOutputStream(buffer);
             writer.setOutput(stream);
 
             String standardFormat = IIOMetadataFormatImpl.standardMetadataFormatName;
@@ -273,6 +307,11 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
         catch (IOException e) {
             e.printStackTrace();
             fail(e.getMessage());
+        }
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
         }
 
         assertTrue("No image data written", buffer.size() > 0);
@@ -316,7 +355,9 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
 
         ImageWriter writer = createImageWriter();
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        try (ImageOutputStream output = ImageIO.createImageOutputStream(buffer)) {
+        ImageOutputStream output = null;
+        try {
+        	output = ImageIO.createImageOutputStream(buffer);
             writer.setOutput(output);
 
             ImageWriteParam params = writer.getDefaultWriteParam();
@@ -343,8 +384,15 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
                 fail(e.getMessage());
             }
         }
+        finally {
+        	if (output != null) {
+        		output.close();
+        	}
+        }
 
-        try (ImageInputStream input = ImageIO.createImageInputStream(new ByteArrayInputStream(buffer.toByteArray()))) {
+        ImageInputStream input = null;
+        try {
+        	input = ImageIO.createImageInputStream(new ByteArrayInputStream(buffer.toByteArray()));
             ImageReader reader = ImageIO.getImageReaders(input).next();
             reader.setInput(input);
 
@@ -359,6 +407,11 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
                 assertRGBEquals("RGB differ", images[i].getRGB(0, 0), image.getRGB(0, 0), 5); // Allow room for JPEG compression
             }
         }
+        finally {
+        	if (input != null) {
+        		input.close();
+        	}
+        }
     }
 
     @Test
@@ -366,12 +419,19 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
         // Read original LZW compressed TIFF
         IIOImage original;
 
-        try (ImageInputStream input = ImageIO.createImageInputStream(getClass().getResource("/tiff/a33.tif"))) {
+        ImageInputStream input = null;
+        try {
+        	input = ImageIO.createImageInputStream(getClass().getResource("/tiff/a33.tif"));
             ImageReader reader = ImageIO.getImageReaders(input).next();
             reader.setInput(input);
 
             original = reader.readAll(0, null);
             reader.dispose();
+        }
+        finally {
+        	if (input != null) {
+        		input.close();
+        	}
         }
 
         assumeNotNull(original);
@@ -379,16 +439,24 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
         // Write it back, using same compression (copied from metadata)
         FastByteArrayOutputStream buffer = new FastByteArrayOutputStream(32768);
 
-        try (ImageOutputStream output = ImageIO.createImageOutputStream(buffer)) {
+        ImageOutputStream output = null;
+        try {
+        	output = ImageIO.createImageOutputStream(buffer);
             ImageWriter writer = createImageWriter();
             writer.setOutput(output);
 
             writer.write(original);
             writer.dispose();
         }
+        finally {
+        	if (output != null) {
+        		output.close();
+        	}
+        }
 
         // Try re-reading the same TIFF
-        try (ImageInputStream input = ImageIO.createImageInputStream(buffer.createInputStream())) {
+        try {
+        	input = ImageIO.createImageInputStream(buffer.createInputStream());
             ImageReader reader = ImageIO.getImageReaders(input).next();
             reader.setInput(input);
             BufferedImage image = reader.read(0);
@@ -419,6 +487,11 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
 
             assertTrue("Software metadata not found", softwareFound);
         }
+        finally {
+        	if (input != null) {
+        		input.close();
+        	}
+        }
     }
 
     @Test
@@ -426,12 +499,19 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
         // Read original LZW compressed TIFF
         IIOImage original;
 
-        try (ImageInputStream input = ImageIO.createImageInputStream(getClassLoaderResource("/tiff/a33.tif"))) {
+        ImageInputStream input = null;
+        try {
+        	input = ImageIO.createImageInputStream(getClassLoaderResource("/tiff/a33.tif"));
             ImageReader reader = ImageIO.getImageReaders(input).next();
             reader.setInput(input);
 
             original = reader.readAll(0, null);
             reader.dispose();
+        }
+        finally {
+        	if (input != null) {
+        		input.close();
+        	}
         }
 
         assumeNotNull(original);
@@ -439,7 +519,9 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
         // Write it back, using same compression (copied from metadata)
         FastByteArrayOutputStream buffer = new FastByteArrayOutputStream(32768);
 
-        try (ImageOutputStream output = ImageIO.createImageOutputStream(buffer)) {
+        ImageOutputStream output = null;
+        try {
+        	output = ImageIO.createImageOutputStream(buffer);
             ImageWriter writer = createImageWriter();
             writer.setOutput(output);
 
@@ -450,9 +532,15 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
             writer.write(null, original, param);
             writer.dispose();
         }
+        finally {
+        	if (output != null) {
+        		output.close();
+        	}
+        }
 
         // Try re-reading the same TIFF
-        try (ImageInputStream input = ImageIO.createImageInputStream(buffer.createInputStream())) {
+        try {
+        	input = ImageIO.createImageInputStream(buffer.createInputStream());
             ImageReader reader = ImageIO.getImageReaders(input).next();
             reader.setInput(input);
             BufferedImage image = reader.read(0);
@@ -483,6 +571,11 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
 
             assertTrue("Software metadata not found", softwareFound);
         }
+        finally {
+        	if (input != null) {
+        		input.close();
+        	}
+        }
     }
 
     @Test
@@ -490,12 +583,19 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
         // Read original LZW compressed TIFF
         IIOImage original;
 
-        try (ImageInputStream input = ImageIO.createImageInputStream(getClassLoaderResource("/tiff/a33.tif"))) {
+        ImageInputStream input = null;
+        try {
+        	input = ImageIO.createImageInputStream(getClassLoaderResource("/tiff/a33.tif"));
             ImageReader reader = ImageIO.getImageReaders(input).next();
             reader.setInput(input);
 
             original = reader.readAll(0, null);
             reader.dispose();
+        }
+        finally {
+        	if (input != null) {
+        		input.close();
+        	}
         }
 
         assumeNotNull(original);
@@ -503,7 +603,9 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
         // Write it back, using same compression (copied from metadata)
         FastByteArrayOutputStream buffer = new FastByteArrayOutputStream(32768);
 
-        try (ImageOutputStream output = ImageIO.createImageOutputStream(buffer)) {
+        ImageOutputStream output = null;
+        try {
+        	output = ImageIO.createImageOutputStream(buffer);
             ImageWriter writer = createImageWriter();
             writer.setOutput(output);
 
@@ -514,9 +616,15 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
             writer.write(null, original, param);
             writer.dispose();
         }
+        finally {
+        	if (output != null) {
+        		output.close();
+        	}
+        }
 
         // Try re-reading the same TIFF
-        try (ImageInputStream input = ImageIO.createImageInputStream(buffer.createInputStream())) {
+        try {
+        	input = ImageIO.createImageInputStream(buffer.createInputStream());
             ImageReader reader = ImageIO.getImageReaders(input).next();
             reader.setInput(input);
             BufferedImage image = reader.read(0);
@@ -548,6 +656,11 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
 
             assertTrue("Software metadata not found", softwareFound);
         }
+        finally {
+        	if (input != null) {
+        		input.close();
+        	}
+        }
     }
 
     @Test
@@ -555,12 +668,19 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
         // Read original LZW compressed TIFF
         IIOImage original;
 
-        try (ImageInputStream input = ImageIO.createImageInputStream(getClassLoaderResource("/tiff/quad-lzw.tif"))) {
+        ImageInputStream input = null;
+        try {
+        	input = ImageIO.createImageInputStream(getClassLoaderResource("/tiff/quad-lzw.tif"));
             ImageReader reader = ImageIO.getImageReaders(input).next();
             reader.setInput(input);
 
             original = reader.readAll(0, null);
             reader.dispose();
+        }
+        finally {
+        	if (input != null) {
+        		input.close();
+        	}
         }
 
         assumeNotNull(original);
@@ -568,16 +688,24 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
         // Write it back, using same compression (copied from metadata)
         FastByteArrayOutputStream buffer = new FastByteArrayOutputStream(32768);
 
-        try (ImageOutputStream output = ImageIO.createImageOutputStream(buffer)) {
+        ImageOutputStream output = null;
+        try {
+        	output = ImageIO.createImageOutputStream(buffer);
             ImageWriter writer = createImageWriter();
             writer.setOutput(output);
 
             writer.write(original);
             writer.dispose();
         }
+        finally {
+        	if (output != null) {
+        		output.close();
+        	}
+        }
 
         // Try re-reading the same TIFF
-        try (ImageInputStream input = ImageIO.createImageInputStream(buffer.createInputStream())) {
+        try {
+        	input = ImageIO.createImageInputStream(buffer.createInputStream());
             ImageReader reader = ImageIO.getImageReaders(input).next();
             reader.setInput(input);
             BufferedImage image = reader.read(0);
@@ -608,6 +736,11 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
 
             assertTrue("Software metadata not found", softwareFound);
         }
+        finally {
+        	if (input != null) {
+        		input.close();
+        	}
+        }
     }
 
     @Test
@@ -615,12 +748,19 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
         // Read original LZW compressed TIFF
         IIOImage original;
 
-        try (ImageInputStream input = ImageIO.createImageInputStream(getClassLoaderResource("/tiff/quad-lzw.tif"))) {
+        ImageInputStream input = null;
+        try {
+        	input = ImageIO.createImageInputStream(getClassLoaderResource("/tiff/quad-lzw.tif"));
             ImageReader reader = ImageIO.getImageReaders(input).next();
             reader.setInput(input);
 
             original = reader.readAll(0, null);
             reader.dispose();
+        }
+        finally {
+        	if (input != null) {
+        		input.close();
+        	}
         }
 
         assumeNotNull(original);
@@ -628,7 +768,9 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
         // Write it back, using same compression (copied from metadata)
         FastByteArrayOutputStream buffer = new FastByteArrayOutputStream(32768);
 
-        try (ImageOutputStream output = ImageIO.createImageOutputStream(buffer)) {
+        ImageOutputStream output = null;
+        try {
+        	output = ImageIO.createImageOutputStream(buffer);
             ImageWriter writer = createImageWriter();
             writer.setOutput(output);
 
@@ -639,9 +781,15 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
             writer.write(null, original, param);
             writer.dispose();
         }
+        finally {
+        	if (output != null) {
+        		output.close();
+        	}
+        }
 
         // Try re-reading the same TIFF
-        try (ImageInputStream input = ImageIO.createImageInputStream(buffer.createInputStream())) {
+        try {
+        	input = ImageIO.createImageInputStream(buffer.createInputStream());
             ImageReader reader = ImageIO.getImageReaders(input).next();
             reader.setInput(input);
             BufferedImage image = reader.read(0);
@@ -672,6 +820,11 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
 
             assertTrue("Software metadata not found", softwareFound);
         }
+        finally {
+        	if (input != null) {
+        		input.close();
+        	}
+        }
     }
 
     @Test
@@ -679,12 +832,19 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
         // Read original LZW compressed TIFF
         IIOImage original;
 
-        try (ImageInputStream input = ImageIO.createImageInputStream(getClassLoaderResource("/tiff/quad-lzw.tif"))) {
+        ImageInputStream input = null;
+        try {
+        	input = ImageIO.createImageInputStream(getClassLoaderResource("/tiff/quad-lzw.tif"));
             ImageReader reader = ImageIO.getImageReaders(input).next();
             reader.setInput(input);
 
             original = reader.readAll(0, null);
             reader.dispose();
+        }
+        finally {
+        	if (input != null) {
+        		input.close();
+        	}
         }
 
         assumeNotNull(original);
@@ -692,7 +852,9 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
         // Write it back, using same compression (copied from metadata)
         FastByteArrayOutputStream buffer = new FastByteArrayOutputStream(32768);
 
-        try (ImageOutputStream output = ImageIO.createImageOutputStream(buffer)) {
+        ImageOutputStream output = null;
+        try {
+        	output = ImageIO.createImageOutputStream(buffer);
             ImageWriter writer = createImageWriter();
             writer.setOutput(output);
 
@@ -703,13 +865,19 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
             writer.write(null, original, param);
             writer.dispose();
         }
+        finally {
+        	if (output != null) {
+        		output.close();
+        	}
+        }
 
 //        Path tempFile = Files.createTempFile("test-", ".tif");
 //        Files.write(tempFile, buffer.toByteArray());
 //        System.out.println("open " + tempFile.toAbsolutePath());
 
         // Try re-reading the same TIFF
-        try (ImageInputStream input = ImageIO.createImageInputStream(buffer.createInputStream())) {
+        try {
+        	input = ImageIO.createImageInputStream(buffer.createInputStream());
             ImageReader reader = ImageIO.getImageReaders(input).next();
             reader.setInput(input);
             BufferedImage image = reader.read(0);
@@ -740,6 +908,11 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
 
             assertTrue("Software metadata not found", softwareFound);
         }
+        finally {
+        	if (input != null) {
+        		input.close();
+        	}
+        }
     }
 
     @Test
@@ -763,10 +936,17 @@ public class TIFFImageWriterTest extends ImageWriterAbstractTestCase {
 
             // Store cropped
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            try (ImageOutputStream output = ImageIO.createImageOutputStream(bytes)) {
+            ImageOutputStream output = null;
+            try {
+            	output = ImageIO.createImageOutputStream(bytes);
                 ImageWriter imageWriter = createImageWriter();
                 imageWriter.setOutput(output);
                 imageWriter.write(subimage);
+            }
+            finally {
+            	if (output != null) {
+            		output.close();
+            	}
             }
 
             // Re-read cropped

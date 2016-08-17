@@ -28,27 +28,63 @@
 
 package com.twelvemonkeys.imageio.plugins.bmp;
 
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.Rectangle;
+import java.awt.TexturePaint;
+import java.awt.Transparency;
+import java.awt.color.ColorSpace;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferInt;
+import java.awt.image.DataBufferShort;
+import java.awt.image.DirectColorModel;
+import java.awt.image.IndexColorModel;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
+
+import javax.imageio.IIOException;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.spi.ImageReaderSpi;
+import javax.imageio.stream.ImageInputStream;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
+
 import com.twelvemonkeys.image.ImageUtil;
 import com.twelvemonkeys.imageio.ImageReaderBase;
 import com.twelvemonkeys.imageio.util.IIOUtil;
 import com.twelvemonkeys.imageio.util.ImageTypeSpecifiers;
 import com.twelvemonkeys.util.WeakWeakMap;
-
-import javax.imageio.*;
-import javax.imageio.spi.ImageReaderSpi;
-import javax.imageio.stream.ImageInputStream;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.color.ColorSpace;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.image.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteOrder;
-import java.util.*;
-import java.util.List;
 
 /**
  * ImageReader for Microsoft Windows ICO (icon) format.
@@ -73,8 +109,8 @@ abstract class DIBImageReader extends ImageReaderBase {
     private Directory directory;
 
     // TODO: Review these, make sure we don't have a memory leak
-    private Map<DirectoryEntry, DIBHeader> headers = new WeakHashMap<>();
-    private Map<DirectoryEntry, BitmapDescriptor> descriptors = new WeakWeakMap<>();
+    private Map<DirectoryEntry, DIBHeader> headers = new WeakHashMap<DirectoryEntry, DIBHeader>();
+    private Map<DirectoryEntry, BitmapDescriptor> descriptors = new WeakWeakMap<DirectoryEntry, BitmapDescriptor>();
 
     private ImageReader pngImageReader;
 
@@ -102,7 +138,7 @@ abstract class DIBImageReader extends ImageReaderBase {
             return getImageTypesPNG(entry);
         }
 
-        List<ImageTypeSpecifier> types = new ArrayList<>();
+        List<ImageTypeSpecifier> types = new ArrayList<ImageTypeSpecifier>();
         DIBHeader header = getHeader(entry);
 
         // Use data from header to create specifier

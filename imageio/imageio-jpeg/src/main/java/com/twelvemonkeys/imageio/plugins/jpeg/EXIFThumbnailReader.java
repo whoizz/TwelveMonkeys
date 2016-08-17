@@ -103,7 +103,7 @@ final class EXIFThumbnailReader extends ThumbnailReader {
             thumbnail = readJPEG();
         }
 
-        cachedThumbnail = pixelsExposed ? null : new SoftReference<>(thumbnail);
+        cachedThumbnail = pixelsExposed ? null : new SoftReference<BufferedImage>(thumbnail);
 
         return thumbnail;
     }
@@ -134,9 +134,16 @@ final class EXIFThumbnailReader extends ThumbnailReader {
 
             try {
 
-                try (MemoryCacheImageInputStream stream = new MemoryCacheImageInputStream(input)) {
+            	MemoryCacheImageInputStream stream = null;
+                try {
+                	stream = new MemoryCacheImageInputStream(input);
                     return readJPEGThumbnail(reader, stream);
                 }
+            	finally {
+            		if (stream != null) {
+                		stream.close();
+            		}
+            	}
             }
             finally {
                 input.close();

@@ -28,17 +28,20 @@
 
 package com.twelvemonkeys.imageio.util;
 
-import com.twelvemonkeys.imageio.stream.URLImageInputStreamSpi;
-import org.junit.Test;
-import org.mockito.InOrder;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.event.IIOWriteProgressListener;
-import javax.imageio.spi.IIORegistry;
-import javax.imageio.stream.ImageOutputStream;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.LinearGradientPaint;
+import java.awt.Polygon;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.ByteArrayOutputStream;
@@ -46,9 +49,17 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.*;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.event.IIOWriteProgressListener;
+import javax.imageio.spi.IIORegistry;
+import javax.imageio.stream.ImageOutputStream;
+
+import org.junit.Test;
+import org.mockito.InOrder;
+
+import com.twelvemonkeys.imageio.stream.URLImageInputStreamSpi;
 
 /**
  * ImageReaderAbstractTestCase class description.
@@ -122,12 +133,19 @@ public abstract class ImageWriterAbstractTestCase {
         for (RenderedImage testData : getTestData()) {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
-            try (ImageOutputStream stream = ImageIO.createImageOutputStream(buffer)) {
+            ImageOutputStream stream = null;
+            try {
+            	stream = ImageIO.createImageOutputStream(buffer);
                 writer.setOutput(stream);
                 writer.write(drawSomething((BufferedImage) testData));
             }
             catch (IOException e) {
                 fail(e.getMessage());
+            }
+            finally {
+            	if (stream != null) {
+            		stream.close();
+            	}
             }
 
             assertTrue("No image data written", buffer.size() > 0);

@@ -28,14 +28,9 @@
 
 package com.twelvemonkeys.imageio.metadata.exif;
 
-import com.twelvemonkeys.imageio.metadata.*;
-import com.twelvemonkeys.imageio.stream.ByteArrayImageInputStream;
-import com.twelvemonkeys.io.FastByteArrayOutputStream;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageOutputStream;
-import javax.imageio.stream.ImageOutputStreamImpl;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,8 +39,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageOutputStream;
+import javax.imageio.stream.ImageOutputStreamImpl;
+
+import org.junit.Test;
+
+import com.twelvemonkeys.imageio.metadata.AbstractDirectory;
+import com.twelvemonkeys.imageio.metadata.AbstractEntry;
+import com.twelvemonkeys.imageio.metadata.Directory;
+import com.twelvemonkeys.imageio.metadata.Entry;
+import com.twelvemonkeys.imageio.metadata.MetadataWriterAbstractTest;
+import com.twelvemonkeys.imageio.stream.ByteArrayImageInputStream;
+import com.twelvemonkeys.io.FastByteArrayOutputStream;
 
 /**
  * EXIFWriterTest
@@ -72,7 +78,7 @@ public class EXIFWriterTest extends MetadataWriterAbstractTest {
 
     @Test
     public void testWriteReadSimple() throws IOException {
-        ArrayList<Entry> entries = new ArrayList<>();
+        ArrayList<Entry> entries = new ArrayList<Entry>();
         entries.add(new EXIFEntry(TIFF.TAG_ORIENTATION, 1, TIFF.TYPE_SHORT));
         entries.add(new EXIFEntry(TIFF.TAG_IMAGE_WIDTH, 1600, TIFF.TYPE_SHORT));
         entries.add(new AbstractEntry(TIFF.TAG_IMAGE_HEIGHT, 900) {});
@@ -120,7 +126,7 @@ public class EXIFWriterTest extends MetadataWriterAbstractTest {
 
     @Test
     public void testWriteMotorola() throws IOException {
-        ArrayList<Entry> entries = new ArrayList<>();
+        ArrayList<Entry> entries = new ArrayList<Entry>();
         entries.add(new AbstractEntry(TIFF.TAG_SOFTWARE, "TwelveMonkeys ImageIO") {});
         entries.add(new EXIFEntry(TIFF.TAG_IMAGE_WIDTH, Integer.MAX_VALUE, TIFF.TYPE_LONG));
         Directory directory = new AbstractDirectory(entries) {};
@@ -155,7 +161,7 @@ public class EXIFWriterTest extends MetadataWriterAbstractTest {
 
     @Test
     public void testWriteIntel() throws IOException {
-        ArrayList<Entry> entries = new ArrayList<>();
+        ArrayList<Entry> entries = new ArrayList<Entry>();
         entries.add(new AbstractEntry(TIFF.TAG_SOFTWARE, "TwelveMonkeys ImageIO") {});
         entries.add(new EXIFEntry(TIFF.TAG_IMAGE_WIDTH, Integer.MAX_VALUE, TIFF.TYPE_LONG));
         Directory directory = new AbstractDirectory(entries) {};
@@ -235,7 +241,7 @@ public class EXIFWriterTest extends MetadataWriterAbstractTest {
 
     @Test
     public void testComputeIFDSize() throws IOException {
-        ArrayList<Entry> entries = new ArrayList<>();
+        ArrayList<Entry> entries = new ArrayList<Entry>();
         entries.add(new EXIFEntry(TIFF.TAG_ORIENTATION, 1, TIFF.TYPE_SHORT));
         entries.add(new EXIFEntry(TIFF.TAG_IMAGE_WIDTH, 1600, TIFF.TYPE_SHORT));
         entries.add(new AbstractEntry(TIFF.TAG_IMAGE_HEIGHT, 900) {});

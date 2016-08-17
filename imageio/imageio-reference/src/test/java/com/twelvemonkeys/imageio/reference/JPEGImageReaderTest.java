@@ -1,20 +1,22 @@
 package com.twelvemonkeys.imageio.reference;
 
-import com.twelvemonkeys.imageio.util.ImageReaderAbstractTest;
-import com.twelvemonkeys.lang.SystemUtil;
-import org.junit.Ignore;
-import org.junit.Test;
+import static org.junit.Assume.assumeNoException;
 
-import javax.imageio.IIOException;
-import javax.imageio.ImageReader;
-import javax.imageio.spi.ImageReaderSpi;
-import java.awt.*;
+import java.awt.Dimension;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assume.assumeNoException;
+import javax.imageio.IIOException;
+import javax.imageio.ImageReader;
+import javax.imageio.spi.ImageReaderSpi;
+
+import org.junit.Ignore;
+import org.junit.Test;
+
+import com.twelvemonkeys.imageio.util.ImageReaderAbstractTest;
+import com.twelvemonkeys.lang.SystemUtil;
 
 /**
  * JPEGImageReaderTest
@@ -32,7 +34,13 @@ public class JPEGImageReaderTest extends ImageReaderAbstractTest {
         try {
             return (ImageReaderSpi) Class.forName("com.sun.imageio.plugins.jpeg.JPEGImageReaderSpi").newInstance();
         }
-        catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+        catch (InstantiationException e) {
+            assumeNoException(e);
+        }
+        catch (IllegalAccessException e) {
+            assumeNoException(e);
+        }
+        catch (ClassNotFoundException e) {
             assumeNoException(e);
         }
 

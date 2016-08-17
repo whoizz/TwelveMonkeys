@@ -28,10 +28,20 @@
 
 package com.twelvemonkeys.imageio.plugins.psd;
 
-import com.twelvemonkeys.imageio.util.ImageReaderAbstractTest;
-import com.twelvemonkeys.imageio.util.ProgressListenerBase;
-import org.junit.Test;
-import org.w3c.dom.NodeList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.awt.Dimension;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
@@ -41,13 +51,12 @@ import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.metadata.IIOMetadataNode;
 import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.ImageInputStream;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.*;
-import java.util.List;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+import org.w3c.dom.NodeList;
+
+import com.twelvemonkeys.imageio.util.ImageReaderAbstractTest;
+import com.twelvemonkeys.imageio.util.ProgressListenerBase;
 
 /**
  * PSDImageReaderTest
@@ -138,7 +147,9 @@ public class PSDImageReaderTest extends ImageReaderAbstractTest<PSDImageReader> 
     public void testThumbnailReading() throws IOException {
         PSDImageReader imageReader = createReader();
 
-        try (ImageInputStream stream = getTestData().get(0).getInputStream()) {
+        ImageInputStream stream = null;
+        try {
+        	stream = getTestData().get(0).getInputStream();
             imageReader.setInput(stream);
 
             assertEquals(1, imageReader.getNumThumbnails(0));
@@ -148,6 +159,11 @@ public class PSDImageReaderTest extends ImageReaderAbstractTest<PSDImageReader> 
 
             assertEquals(128, thumbnail.getWidth());
             assertEquals(96, thumbnail.getHeight());
+        }
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
         }
     }
 
@@ -192,7 +208,9 @@ public class PSDImageReaderTest extends ImageReaderAbstractTest<PSDImageReader> 
     public void testThumbnailReadingOutOfBounds() throws IOException {
         PSDImageReader imageReader = createReader();
 
-        try (ImageInputStream stream = getTestData().get(0).getInputStream()) {
+        ImageInputStream stream = null;
+        try {
+        	stream = getTestData().get(0).getInputStream();
             imageReader.setInput(stream);
 
             int numImages = imageReader.getNumImages(true);
@@ -230,13 +248,20 @@ public class PSDImageReaderTest extends ImageReaderAbstractTest<PSDImageReader> 
                 assertTrue(expected.getMessage(), expected.getMessage().toLowerCase().contains("index"));
             }
         }
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
+        }
     }
 
     @Test
     public void testThumbnailDimensions() throws IOException {
         PSDImageReader imageReader = createReader();
 
-        try (ImageInputStream stream = getTestData().get(0).getInputStream()) {
+        ImageInputStream stream = null;
+        try {
+        	stream = getTestData().get(0).getInputStream();
             imageReader.setInput(stream);
 
             assertEquals(1, imageReader.getNumThumbnails(0));
@@ -244,16 +269,23 @@ public class PSDImageReaderTest extends ImageReaderAbstractTest<PSDImageReader> 
             assertEquals(128, imageReader.getThumbnailWidth(0, 0));
             assertEquals(96, imageReader.getThumbnailHeight(0, 0));
         }
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
+        }
     }
 
     @Test
     public void testThumbnailReadListeners() throws IOException {
         PSDImageReader imageReader = createReader();
 
-        try (ImageInputStream stream = getTestData().get(0).getInputStream()) {
+        ImageInputStream stream = null;
+        try {
+        	stream = getTestData().get(0).getInputStream();
             imageReader.setInput(stream);
 
-            final List<Object> seqeunce = new ArrayList<>();
+            final List<Object> seqeunce = new ArrayList<Object>();
             imageReader.addIIOReadProgressListener(new ProgressListenerBase() {
                 private float mLastPercentageDone = 0;
 
@@ -282,13 +314,20 @@ public class PSDImageReaderTest extends ImageReaderAbstractTest<PSDImageReader> 
             assertEquals("started", seqeunce.get(0));
             assertEquals("complete", seqeunce.get(1));
         }
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
+        }
     }
 
     @Test
     public void testReadLayers() throws IOException {
         PSDImageReader imageReader = createReader();
 
-        try (ImageInputStream stream = getTestData().get(3).getInputStream()) {
+        ImageInputStream stream = null;
+        try {
+        	stream = getTestData().get(3).getInputStream();
             imageReader.setInput(stream);
 
             int numImages = imageReader.getNumImages(true);
@@ -304,13 +343,20 @@ public class PSDImageReaderTest extends ImageReaderAbstractTest<PSDImageReader> 
                 assertEquals(image.getHeight(), imageReader.getHeight(i));
             }
         }
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
+        }
     }
 
     @Test
     public void testImageTypesLayers() throws IOException {
         PSDImageReader imageReader = createReader();
 
-        try (ImageInputStream stream = getTestData().get(3).getInputStream()) {
+        ImageInputStream stream = null;
+        try {
+        	stream = getTestData().get(3).getInputStream();
             imageReader.setInput(stream);
 
             int numImages = imageReader.getNumImages(true);
@@ -336,13 +382,20 @@ public class PSDImageReaderTest extends ImageReaderAbstractTest<PSDImageReader> 
                 assertTrue("RAW image type not in type iterator", found);
             }
         }
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
+        }
     }
 
     @Test
     public void testReadLayersExplicitType() throws IOException {
         PSDImageReader imageReader = createReader();
 
-        try (ImageInputStream stream = getTestData().get(3).getInputStream()) {
+        ImageInputStream stream = null;
+        try {
+        	stream = getTestData().get(3).getInputStream();
             imageReader.setInput(stream);
 
             int numImages = imageReader.getNumImages(true);
@@ -376,13 +429,20 @@ public class PSDImageReaderTest extends ImageReaderAbstractTest<PSDImageReader> 
                 }
             }
         }
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
+        }
     }
 
     @Test
     public void testReadLayersExplicitDestination() throws IOException {
         PSDImageReader imageReader = createReader();
 
-        try (ImageInputStream stream = getTestData().get(3).getInputStream()) {
+        ImageInputStream stream = null;
+        try {
+        	stream = getTestData().get(3).getInputStream();
             imageReader.setInput(stream);
 
             int numImages = imageReader.getNumImages(true);
@@ -403,6 +463,11 @@ public class PSDImageReaderTest extends ImageReaderAbstractTest<PSDImageReader> 
                 }
             }
         }
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
+        }
     }
 
     @Test
@@ -422,7 +487,9 @@ public class PSDImageReaderTest extends ImageReaderAbstractTest<PSDImageReader> 
                 0xff5a5a5a
         };
 
-        try (ImageInputStream stream = ImageIO.createImageInputStream(getClassLoaderResource("/psd/test_grayscale_boxes.psd"))) {
+        ImageInputStream stream = null;
+        try {
+        	stream = ImageIO.createImageInputStream(getClassLoaderResource("/psd/test_grayscale_boxes.psd"));
             imageReader.setInput(stream);
 
             int numImages = imageReader.getNumImages(true);
@@ -451,13 +518,20 @@ public class PSDImageReaderTest extends ImageReaderAbstractTest<PSDImageReader> 
                 }
             }
         }
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
+        }
     }
 
     @Test
     public void testReadUnicodeLayerName() throws IOException {
         PSDImageReader imageReader = createReader();
 
-        try (ImageInputStream stream = ImageIO.createImageInputStream(getClassLoaderResource("/psd/long-layer-names.psd"))) {
+        ImageInputStream stream = null;
+        try {
+        	stream = ImageIO.createImageInputStream(getClassLoaderResource("/psd/long-layer-names.psd"));
             imageReader.setInput(stream);
 
             IIOMetadata metadata = imageReader.getImageMetadata(0);
@@ -466,6 +540,11 @@ public class PSDImageReaderTest extends ImageReaderAbstractTest<PSDImageReader> 
 
             assertEquals(1, layerInfo.getLength()); // Sanity
             assertEquals("If_The_Layer_Name_Is_Really_Long_Oh_No_What_Do_I_Do", ((IIOMetadataNode) layerInfo.item(0)).getAttribute("name"));
+        }
+        finally {
+        	if (stream != null) {
+        		stream.close();
+        	}
         }
     }
 }

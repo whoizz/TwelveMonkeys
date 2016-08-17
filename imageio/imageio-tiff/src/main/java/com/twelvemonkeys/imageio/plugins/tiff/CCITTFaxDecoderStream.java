@@ -28,13 +28,13 @@
 
 package com.twelvemonkeys.imageio.plugins.tiff;
 
-import com.twelvemonkeys.lang.Validate;
-
 import java.io.EOFException;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+
+import com.twelvemonkeys.lang.Validate;
 
 /**
  * CCITT Modified Huffman RLE, Group 3 (T4) and Group 4 (T6) fax compression.
@@ -221,7 +221,7 @@ final class CCITTFaxDecoderStream extends FilterInputStream {
     }
 
     private int getNextChangingElement(final int a0, final boolean white) throws IOException {
-        int start = (lastChangingElement & 0xFFFF_FFFE) + (white ? 0 : 1);
+        int start = (lastChangingElement & 0xFFFFFFFE) + (white ? 0 : 1);
         if (start > 2) {
             start -= 2;
         }
